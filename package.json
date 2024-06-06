@@ -1,11 +1,19 @@
 {
+    "name": "clever-mono-repo",
+    "version": "1.0.0",
+    "description": "Monorepo for Clever SDK and Clever Test projects",
     "private": true,
+    "workspaces": [
+        "projects/*"
+    ],
     "scripts": {
-        "doc": "cargo doc --no-deps --all-features",
-        "test": "cargo test --release",
-        "fmt": "cargo fmt --all",
-        "p": "git push && git push --tags --prune",
-        "reset": "git reset Head~ --soft",
-        "u": "cargo upgrade --workspace"
+        "build": "tsc --build ./projects/*",
+        "lint": "eslint 'projects/**/*.{js,ts,tsx}'"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^8.14.0",
+        "@typescript-eslint/parser": "^8.14.0",
+        "eslint": "^9.14.0",
+        "typescript": "^5.6.3"
     }
 }
