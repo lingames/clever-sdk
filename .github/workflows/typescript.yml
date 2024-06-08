@@ -1,0 +1,32 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [clever-sdk]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      working-directory: projects/${{ matrix.project }}
+      run: npm ci
+    - name: Build
+      working-directory: projects/${{ matrix.project }}
+      run: npm run build
+    - name: Lint
+      working-directory: projects/${{ matrix.project }}
+      run: npm run lint
+    - name: Test
+      working-directory: projects/${{ matrix.project }}
+      run: npm test
