@@ -9,7 +9,6 @@
         "lint": "eslint 'src/**/*.{js,ts,tsx}'"
     },
     "dependencies": {
-    },
-    "devDependencies": {
+        "axios": "^1.7.7"
     }
 }

@@ -1,24 +1,13 @@
 import axios from 'axios'
+import {Method} from "axios";
 
 /**
  * 异步调用 Axios
- *
- * @template T
- * @param {'PUT' | 'POST' | 'PATCH' | 'DELETE'} method - 允许的 HTTP 方法
- * @param {string} endpoint - 接口的 HTTP 端点
- * @param {any} data - 输入对象
- * @returns {Promise<T>} 返回值类型
  */
-export async function myAxios (method, endpoint, data) {
+export async function callAnalyzer<I, O>(method: Method, endpoint: string, data: I): Promise<O | null> {
     // const host = process.env.VUE_APP_API_HOST
-    const host = "https://api.salesagent.cc/game-logger";
-
-    // 读取全局状态
+    const host = "https://api.salesagent.cc/game-analyzer";
     const bearer = 'ej'
-
-    //   let c = `${host}/${endpoint}`
-    //   alert(c)
-
     try {
         const response = await axios({
             method: method,
@@ -44,4 +33,15 @@ export async function myAxios (method, endpoint, data) {
         console.error(error)
         return null
     }
+}
+
+type PlayerKey = {
+    player_anonymous: string
+} | {
+    player_id: string
+}
+
+export async function isNewPlayer(key: PlayerKey): Promise<boolean> {
+    let result: boolean | null = await callAnalyzer('POST', 'player/check/new', key)
+    return  result ?? false
 }
