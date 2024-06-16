@@ -10,10 +10,14 @@ import  {sha256} from './sha256';
 // import { GGameData, GlobalDataType } from '../framework/globals';
 // import { error } from 'console';
 
-declare global {
-    const sys: any;
-    const GameGlobal:any;
+declare namespace sys {
+    const localStorage: any;
 }
+
+declare namespace GameGlobal {
+    // function createSdk(env: string, sdk_url: string, sdk_key: string, game_id: number, wx_tt: any): BrowserSdk;
+}
+
 
 export class MySdk {
     protected platform: string;
@@ -564,6 +568,7 @@ export const createSdk = (env: string, sdk_url: string, sdk_key: string, game_id
     return new BrowserSdk(env, sdk_url, sdk_key, game_id, wx_tt);
 };
 
+// @ts-ignore
 let globalValue = GameGlobal;
 
 globalValue['createSdk'] = createSdk;
