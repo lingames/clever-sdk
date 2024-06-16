@@ -1,37 +1,37 @@
-import axios from 'axios'
-import {Method} from "axios";
+import axios from 'axios';
+import {Method} from 'axios';
 
 /**
  * 异步调用 Axios
  */
 export async function callAnalyzer<I, O>(method: Method, endpoint: string, data: I): Promise<O | null> {
     // const host = process.env.VUE_APP_API_HOST
-    const host = "https://api.salesagent.cc/game-analyzer";
-    const bearer = 'ej'
+    const host = 'https://api.salesagent.cc/game-analyzer';
+    const bearer = 'ej';
     try {
         const response = await axios({
             method: method,
             url: `${host}/${endpoint}`,
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
-                'Authorization': bearer
+                Authorization: bearer
             },
             data: data
-        })
+        });
         if (response.status !== 200) {
-            console.error(response.statusText)
-            return null
+            console.error(response.statusText);
+            return null;
         }
-        const result = response.data
+        const result = response.data;
         if (result.code < 0) {
-            console.error(result.message)
-            return null
+            console.error(result.message);
+            return null;
         } else {
-            return result.data
+            return result.data;
         }
     } catch (error) {
-        console.error(error)
-        return null
+        console.error(error);
+        return null;
     }
 }
 
@@ -42,6 +42,6 @@ type PlayerKey = {
 }
 
 export async function isNewPlayer(key: PlayerKey): Promise<boolean> {
-    let result: boolean | null = await callAnalyzer('POST', 'player/check/new', key)
-    return  result ?? false
+    let result: boolean | null = await callAnalyzer('POST', 'player/check/new', key);
+    return  result ?? false;
 }
