@@ -2,6 +2,7 @@ import axios from 'axios';
 import {Method} from 'axios';
 
 import {PlayerKey} from "./models/players";
+import {EventReport} from "./models/events";
 
 /**
  * 异步调用 Axios

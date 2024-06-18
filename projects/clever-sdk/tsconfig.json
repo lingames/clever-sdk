@@ -1,7 +1,12 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "outDir": "dist"
+        "module": "AMD",
+        "moduleResolution": "node",
+        "removeComments": true,
+        "lib": ["es5", "es6", "dom"],
+        //        "outDir": "dist",
+        "outFile": "dist/sdk.js"
     },
     "include": ["src/**/*"]
 }
