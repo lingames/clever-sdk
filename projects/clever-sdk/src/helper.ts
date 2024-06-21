@@ -1,11 +1,8 @@
 // @ts-ignore
 import {sha256} from './sha256.js';
-import {createSdk} from "./sdk";
+import {createSdk} from "./index";
 
-// @ts-ignore
-let globalValue = GameGlobal;
 
-globalValue['createSdk'] = createSdk;
 
 export function promisify_wx(fn: any) {
     return async function (...args: any) {
@@ -177,3 +174,8 @@ export function http_request(method: string, url: string, heads: Map<string, str
         });
     };
 }
+
+// @ts-ignore
+let globalValue = GameGlobal;
+
+globalValue['createSdk'] = createSdk;
