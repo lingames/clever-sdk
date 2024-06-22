@@ -7,7 +7,7 @@ import {BrowserSdk} from "./platformH5/browserSdk";
 import {AdSenseSdk} from "./platformH5/adSenseSdk";
 import {WeChatSdk} from "./platformMini/weChatSdk";
 
-export const createSdk = (env: string, sdk_url: string, sdk_key: string, game_id: number, wx_tt: any) => {
+export function createSdk(env: string, sdk_url: string, sdk_key: string, game_id: number, wx_tt: any) {
     console.log('my sdk create:', env, game_id, typeof (wx_tt));
     if (env == 'WECHAT_GAME' || env == 'douyingame' || env == 'kuaishou') {
         globalValue['inner'] = wx_tt;
@@ -15,12 +15,14 @@ export const createSdk = (env: string, sdk_url: string, sdk_key: string, game_id
 
         globalValue['mySdk'] = ret;
         return ret;
-    } else if (env == 'AdSense') {
+    }
+
+    if (env == 'google') {
         return new AdSenseSdk(env, sdk_url, sdk_key, game_id, wx_tt);
     }
 
     return new BrowserSdk(env, sdk_url, sdk_key, game_id, wx_tt);
-};
+}
 
 // @ts-ignore
 let globalValue = GameGlobal;

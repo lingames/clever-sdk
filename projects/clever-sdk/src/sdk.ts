@@ -8,10 +8,7 @@
 
 // @ts-ignore
 
-import {BrowserSdk} from "./platformH5/browserSdk";
-import {WeChatSdk} from "./platformMini/weChatSdk";
-import {AdSenseSdk} from "./platformH5/adSenseSdk";
-
+export interface SdkInitialize { adSenseId: string }
 
 export class MySdk {
     protected platform: string;
@@ -107,8 +104,8 @@ export class MySdk {
         }
     }
 
-    async initialize() {
-        return;
+    async initialize(info: SdkInitialize): Promise<boolean> {
+        return true;
     }
 
     // 广告接口

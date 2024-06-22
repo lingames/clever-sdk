@@ -1,36 +1,44 @@
 //* 谷歌平台 */
 import {BrowserSdk} from "./browserSdk";
+import {SdkInitialize} from "../sdk";
 
 export class AdSenseSdk extends BrowserSdk {
-    async initialize(): Promise<void> {
-        const script = document.createElement('script');
-        script.async = true;
-        // if (process.env.NODE_ENV !== 'production') {
-        //     script.setAttribute('data-adbreak-test', 'on');
-        // }
-        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${this.videoAd["adSenseId"]}`;
-        script.crossOrigin = 'anonymous';
-        // 将 script 元素插入到文档中
-        document.body.appendChild(script);
-        // @ts-ignore
-        window.adsbygoogle = window.adsbygoogle || [];
-        // @ts-ignore
-        window.adBreak = function (o) {
-            // @ts-ignore
-            adsbygoogle.push(o);
-        }
-        // @ts-ignore
-        window.adConfig = function (o) {
-            // @ts-ignore
-            adsbygoogle.push(o);
-        }
-        // @ts-ignore
-        window.adConfig({
-            sound: 'on',
-            preloadAdBreaks: 'on',
-            onReady: () => {
-                console.log("AdSense onReady");
-            },
+    async initialize({adSenseId}: SdkInitialize): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseId}`;
+            script.crossOrigin = 'anonymous';
+            // 将 script 元素插入到文档中
+            document.body.appendChild(script);
+            script.onload = function () {
+                // @ts-ignore
+                window.adsbygoogle = window.adsbygoogle || [];
+                // @ts-ignore
+                window.adBreak = function (o) {
+                    // @ts-ignore
+                    adsbygoogle.push(o);
+                }
+                // @ts-ignore
+                window.adConfig = function (o) {
+                    // @ts-ignore
+                    adsbygoogle.push(o);
+                }
+                // @ts-ignore
+                window.adConfig({
+                    sound: 'on',
+                    preloadAdBreaks: 'on',
+                    onReady: () => {
+                        console.log("AdSense onReady");
+                    },
+                })
+                resolve(true);
+                // 可以在这里初始化广告
+            };
+
+            script.onerror = function (err) {
+                resolve(false)
+            }
         })
     }
 
