@@ -2,9 +2,12 @@
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
-        "outDir": "dist",
         "strict": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "skipLibCheck": true
     },
-    "include": ["projects/**/*"]
+    "include": [
+        "projects/**/*"
+    ],
+    "exclude": []
 }

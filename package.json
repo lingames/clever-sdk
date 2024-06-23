@@ -7,7 +7,7 @@
         "projects/*"
     ],
     "scripts": {
-        "build": "tsc --build projects/clever-sdk",
+        "build": "tsc --build projects/*",
         "lint": "eslint 'projects/**/*.{js,ts,tsx}'"
     },
     "devDependencies": {

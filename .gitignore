@@ -16,3 +16,4 @@ Cargo.lock
 # Node
 node_modules/
 dist/
+tsconfig.tsbuildinfo
