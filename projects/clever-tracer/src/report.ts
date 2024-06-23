@@ -1,20 +1,18 @@
 import axios from 'axios';
 import {Method} from 'axios';
-
-import {PlayerKey} from "./models/players";
-import {EventReport} from "./models/events";
+import {OnEvent} from "./models/on-event";
 
 /**
  * 异步调用 Axios
  */
-export async function callLogger<I, O>(method: Method, endpoint: string, data: I): Promise<O | null> {
+export async function callLogger<I, O>(method: Method, endPoint: string, data: I): Promise<O | null> {
     // const host = process.env.VUE_APP_API_HOST
     const host = 'https://api.salesagent.cc/game-logger';
     const bearer = 'ej';
     try {
         const response = await axios({
             method: method,
-            url: `${host}/${endpoint}`,
+            url: `${host}/${endPoint}`,
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
                 Authorization: bearer
@@ -39,7 +37,7 @@ export async function callLogger<I, O>(method: Method, endpoint: string, data: I
 }
 
 
-export async function callReport(data: EventReport): Promise<boolean> {
+export async function reportEvent(data: OnEvent): Promise<boolean> {
     let result: boolean | null = await callLogger('POST', 'event', data);
     return result ?? false;
 }
