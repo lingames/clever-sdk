@@ -103,7 +103,7 @@ export class MySdk {
             }
         }
     }
-    // TODO: 为什么不在 ctor 传???
+
     async initialize(info: SdkInitialize): Promise<boolean> {
         return true;
     }
