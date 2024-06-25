@@ -1,6 +1,6 @@
 {
     "name": "@lingames/taro-tracer",
-    "version": "0.0.3",
+    "version": "0.0.1",
     "description": "Clever Engine Tracer",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",

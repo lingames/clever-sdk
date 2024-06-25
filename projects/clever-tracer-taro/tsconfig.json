@@ -1,14 +1,11 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "target": "esnext",
-        "module": "esnext",
-        "moduleResolution": "node",
         "allowJs": false,
-        "declaration": true,
+        "lib": ["es6", "dom"],
         "outDir": "dist"
     },
     "include": [
         "src/index.ts"
-    ],
+    ]
 }
