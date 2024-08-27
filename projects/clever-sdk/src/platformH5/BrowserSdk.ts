@@ -1,4 +1,4 @@
-import {MySdk} from "../sdk";
+import {MySdk} from "../MySdk";
 import {build_sdk_req, generateRandomString, http_request} from "../helper";
 
 declare namespace sys {

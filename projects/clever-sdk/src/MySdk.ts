@@ -6,22 +6,51 @@
  */
 
 
-// @ts-ignore
-
-export interface SdkInitialize { adSenseId: string }
-
 export class MySdk {
+    // 平台名称
     protected platform: string;
+    // game_id 游戏编号，每个游戏 game_id 唯一
     protected game_id: number;
     protected sdk_url: string;
     protected sdk_key: string;
-    protected inner: any;
     protected videoAd: any = {};
     protected sdk_login_url: string = '';
-
     protected session_key: string = '';
 
-    // game_id 游戏编号，每个游戏game_id唯一
+    constructor(platform: string, sdk_url: string, sdk_key: string, game_id: number) {
+        this.platform = platform;
+        this.sdk_url = sdk_url;
+        this.sdk_key = sdk_key;
+        this.game_id = game_id;
+
+        let t_sdk_url = this.sdk_url;
+        if (t_sdk_url) {
+            if (t_sdk_url[t_sdk_url.length - 1] == '/') {
+                t_sdk_url = t_sdk_url.substring(0, t_sdk_url.length - 1);
+            }
+            if (platform == 'WECHAT_GAME') {
+                this.sdk_login_url = t_sdk_url + '/weChatLogin';
+            } else if (platform == 'douyingame') {
+                this.sdk_login_url = t_sdk_url + '/byteDanceLogin';
+            } else if (platform == 'kuaishou') {
+                this.sdk_login_url = t_sdk_url + '/kuaishouLogin';
+            } else if (platform == 'bilibili') {
+                this.sdk_login_url = t_sdk_url + '/bilibiliLogin';
+            } else {
+                this.sdk_login_url = t_sdk_url + '/devLogin';
+            }
+        }
+    }
+
+    /** 初始化平台参数
+     * @param config 平台特有参数
+     * @returns 是否初始化成功
+     * */
+    public async initialize(config: Record<string, any>): Promise<boolean> {
+        return true;
+    }
+
+
     public async login(): Promise<any> {
         console.log('dummy-sdk login');
     }
@@ -35,7 +64,6 @@ export class MySdk {
         return Promise.resolve({});
     }
 
-
     // 设为常用
     public async addCommonUse() {
     }
@@ -47,6 +75,7 @@ export class MySdk {
         });
     }
 
+    // 加桌
     public async addShortcut() {
     }
 
@@ -79,40 +108,10 @@ export class MySdk {
         return Promise.resolve({});
     }
 
-
-    constructor(platform: string, sdk_url: string, sdk_key: string, game_id: number, wx: any) {
-        this.platform = platform;
-        this.sdk_url = sdk_url;
-        this.sdk_key = sdk_key;
-        this.game_id = game_id;
-        this.inner = wx;
-
-        let t_sdk_url = this.sdk_url;
-        if (t_sdk_url) {
-            if (t_sdk_url[t_sdk_url.length - 1] == '/') {
-                t_sdk_url = t_sdk_url.substring(0, t_sdk_url.length - 1);
-            }
-            if (platform == 'WECHAT_GAME') {
-                this.sdk_login_url = t_sdk_url + '/weChatLogin';
-            } else if (platform == 'douyingame') {
-                this.sdk_login_url = t_sdk_url + '/byteDanceLogin';
-            } else if (platform == 'kuaishou') {
-                this.sdk_login_url = t_sdk_url + '/kuaishouLogin';
-            } else {
-                this.sdk_login_url = t_sdk_url + '/devLogin';
-            }
-        }
-    }
-
-    async initialize(info: SdkInitialize): Promise<boolean> {
-        return true;
-    }
-
     // 广告接口
     async createBannerAd() {
-        this.inner.createBannerAd();
-    }
 
+    }
 
     // cb 玩家看广告结束的回调， isEnd: 广告是否看完, true:看完，false:中途退出
     // get_game_url(): string {

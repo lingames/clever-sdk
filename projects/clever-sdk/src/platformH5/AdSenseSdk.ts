@@ -1,13 +1,18 @@
 //* 谷歌平台 */
-import {BrowserSdk} from "./browserSdk";
-import {SdkInitialize} from "../sdk";
+import {BrowserSdk} from "./BrowserSdk";
+
+// @ts-ignore
+
+export interface SdkInitialize {
+    adSenseId: string
+}
 
 export class AdSenseSdk extends BrowserSdk {
-    async initialize({adSenseId}: SdkInitialize): Promise<boolean> {
+    async initialize(config: SdkInitialize): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const script = document.createElement('script');
             script.async = true;
-            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseId}`;
+            script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adSenseId}`;
             script.crossOrigin = 'anonymous';
             // 将 script 元素插入到文档中
             document.body.appendChild(script);

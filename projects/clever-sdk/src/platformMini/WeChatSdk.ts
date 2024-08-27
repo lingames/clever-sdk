@@ -1,7 +1,14 @@
 import {build_sdk_req, parse_sdk_resp, promisify_request, promisify_wx, promisify_wx_a} from "../helper";
-import {MySdk} from "../sdk";
+import {MySdk} from "../MySdk";
+
+
+type WeChatInitialize = {
+    wx: any
+}
 
 export class WeChatSdk extends MySdk {
+    protected inner: any;
+
     override async login() {
         const login_ret: any = await promisify_wx('login')();
         console.log('third-sdk login ret:', login_ret);
@@ -32,6 +39,11 @@ export class WeChatSdk extends MySdk {
         this.session_key = sdkResp.session_key;
 
         return sdkResp;
+    }
+
+    async initialize(info: WeChatInitialize): Promise<boolean> {
+        this.inner = info.wx;
+        return true;
     }
 
     // 建议每秒调用一次，不需要太频繁
@@ -260,5 +272,9 @@ export class WeChatSdk extends MySdk {
         } catch (e: any) {
             return false;
         }
+    }
+
+    async createBannerAd(): Promise<void> {
+        this.inner.createBannerAd();
     }
 }
