@@ -1,33 +1,33 @@
-import {BilibiliSdk} from "./platformMini/BilibiliSdk";
-import {BrowserSdk} from "./platformH5/BrowserSdk";
-import {AdSenseSdk} from "./platformH5/AdSenseSdk";
-import {WeChatSdk} from "./platformMini/WeChatSdk";
-import {KuaiShouSdk} from "./platformMini/KuaiShouSdk";
+export * from "./platformH5";
+export * from "./platformMini";
+export {MySdk} from "./MySdk";
 
-export {BrowserSdk} from "./platformH5/BrowserSdk";
-export {AdSenseSdk} from "./platformH5/AdSenseSdk";
-export {WeChatSdk} from "./platformMini/WeChatSdk";
-export {BilibiliSdk} from "./platformMini/BilibiliSdk";
-export {KuaiShouSdk} from "./platformMini/KuaiShouSdk";
+import {BilibiliSdk, KuaiShouSdk, WeChatSdk} from "./platformMini";
+import {AdSenseSdk, BrowserSdk} from "./platformH5";
+import {MySdk} from "./MySdk";
+import {DynamicSdkConfig} from "./models";
 
-export async function createSdk(env: string, sdk_url: string, sdk_key: string, game_id: number, wx_tt?: any) {
-    console.log('my sdk create:', env, game_id, typeof (wx_tt));
-    if (env == 'WECHAT_GAME') {
-        let ret = new WeChatSdk(env, sdk_url, sdk_key, game_id);
-        return ret.initialize({wx: wx_tt})
+export async function createSdk(config: DynamicSdkConfig): Promise<MySdk> {
+    console.log('my sdk create:', config.env, config.game_id, typeof (config.wx));
+    if (config.env == 'WECHAT_GAME') {
+        let sdk = new WeChatSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
+        await sdk.initialize({wx: config.wx});
+        return sdk
     }
-    if (env == 'douyingame') {
-        return new WeChatSdk(env, sdk_url, sdk_key, game_id);
+    if (config.env == 'douyingame') {
+        return new WeChatSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
     }
-    if (env == 'kuaishou') {
-        return new KuaiShouSdk(env, sdk_url, sdk_key, game_id);
+    if (config.env == 'kuaishou') {
+        return new KuaiShouSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
     }
-    if (env == 'bilibili') {
-        return new BilibiliSdk(env, sdk_url, sdk_key, game_id);
+    if (config.env == 'bilibili') {
+        return new BilibiliSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
     }
-    if (env == 'google') {
-        return new AdSenseSdk(env, sdk_url, sdk_key, game_id);
+    if (config.env == 'google') {
+        let sdk = new AdSenseSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
+        await sdk.initialize({adSenseId: config.adSenseId});
+        return sdk
     }
 
-    return new BrowserSdk(env, sdk_url, sdk_key, game_id);
+    return new BrowserSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);
 }

@@ -1,10 +1,7 @@
 import {build_sdk_req, parse_sdk_resp, promisify_request, promisify_wx, promisify_wx_a} from "../helper";
 import {MySdk} from "../MySdk";
+import {WeChatInitialize} from "../models";
 
-
-type WeChatInitialize = {
-    wx: any
-}
 
 export class WeChatSdk extends MySdk {
     protected inner: any;

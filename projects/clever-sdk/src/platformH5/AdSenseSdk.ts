@@ -1,14 +1,12 @@
 //* 谷歌平台 */
 import {BrowserSdk} from "./BrowserSdk";
+import {AdSenseInitialize} from "../models";
 
 // @ts-ignore
 
-export interface SdkInitialize {
-    adSenseId: string
-}
 
 export class AdSenseSdk extends BrowserSdk {
-    async initialize(config: SdkInitialize): Promise<boolean> {
+    async initialize(config: AdSenseInitialize): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const script = document.createElement('script');
             script.async = true;
