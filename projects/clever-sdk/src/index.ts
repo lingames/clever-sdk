@@ -1,13 +1,13 @@
 export * from "./platformH5";
 export * from "./platformMini";
-export {MySdk} from "./MySdk";
+export {CleverSdk} from "./CleverSdk";
 
 import {BilibiliSdk, KuaiShouSdk, WeChatSdk} from "./platformMini";
 import {AdSenseSdk, BrowserSdk} from "./platformH5";
-import {MySdk} from "./MySdk";
+import {CleverSdk} from "./CleverSdk";
 import {DynamicSdkConfig} from "./models";
 
-export async function createSdk(config: DynamicSdkConfig): Promise<MySdk> {
+export async function createSdk(config: DynamicSdkConfig): Promise<CleverSdk> {
     console.log('my sdk create:', config.env, config.game_id, typeof (config.wx));
     if (config.env == 'WECHAT_GAME') {
         let sdk = new WeChatSdk(config.env, config.sdk_url, config.sdk_key, config.game_id);

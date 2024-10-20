@@ -1,11 +1,11 @@
-import {MySdk} from "../MySdk";
+import {CleverSdk} from "../CleverSdk";
 import {build_sdk_req, generateRandomString, http_request} from "../helper";
 
 declare namespace sys {
     const localStorage: any;
 }
 
-export class BrowserSdk extends MySdk {
+export class BrowserSdk extends CleverSdk {
     override async login() {
         let old_guid = sys.localStorage.getItem('MARS_LOCAL_GUID');
         if (old_guid) {

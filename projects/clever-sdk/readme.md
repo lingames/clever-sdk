@@ -12,7 +12,7 @@
 
 
 ```ts
-export async function createSdk(config: DynamicSdkConfig): Promise<MySdk> {
+export async function createSdk(config: DynamicSdkConfig): Promise<CleverSdk> {
     if (GAME_ENV == 'WECHAT_GAME') {
         let sdk = new WeChatSdk(GAME_ENV, config.sdk_url, config.sdk_key, config.game_id);
         await sdk.initialize({wx: config.wx});

@@ -1,9 +1,9 @@
 import {build_sdk_req, parse_sdk_resp, promisify_request, promisify_wx, promisify_wx_a} from "../helper";
-import {MySdk} from "../MySdk";
+import {CleverSdk} from "../CleverSdk";
 import {WeChatInitialize} from "../models";
 
 
-export class WeChatSdk extends MySdk {
+export class WeChatSdk extends CleverSdk {
     protected inner: any;
 
     override async login() {

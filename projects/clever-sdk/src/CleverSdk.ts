@@ -6,7 +6,7 @@
  */
 
 
-export class MySdk {
+export class CleverSdk {
     // 平台名称
     protected platform: string;
     // game_id 游戏编号，每个游戏 game_id 唯一
