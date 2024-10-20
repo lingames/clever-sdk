@@ -1,7 +1,7 @@
 export type DynamicSdkConfig = MyConfig & WeChatInitialize & AdSenseInitialize;
 
 export type MyConfig = {
-    env: string,
+    platform: string,
     sdk_url: string,
     sdk_key: string,
     game_id: number

@@ -28,6 +28,7 @@ export class CleverSdk {
             if (t_sdk_url[t_sdk_url.length - 1] == '/') {
                 t_sdk_url = t_sdk_url.substring(0, t_sdk_url.length - 1);
             }
+            console.log('登录链接:', t_sdk_url)
             if (platform == 'WECHAT_GAME') {
                 this.sdk_login_url = t_sdk_url + '/weChatLogin';
             } else if (platform == 'douyingame') {
@@ -36,6 +37,8 @@ export class CleverSdk {
                 this.sdk_login_url = t_sdk_url + '/kuaishouLogin';
             } else if (platform == 'bilibili') {
                 this.sdk_login_url = t_sdk_url + '/bilibiliLogin';
+            } else if (platform == 'oppo') {
+                this.sdk_login_url = t_sdk_url + '/oppoLogin';
             } else {
                 this.sdk_login_url = t_sdk_url + '/devLogin';
             }
