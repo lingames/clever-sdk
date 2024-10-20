@@ -2,7 +2,7 @@ export * from "./platformH5";
 export * from "./platformMini";
 export {CleverSdk} from "./CleverSdk";
 
-import {BilibiliSdk, KuaiShouSdk, OppoSdk, WeChatSdk} from "./platformMini";
+import {BilibiliSdk, HuaweiSdk, KuaiShouSdk, OppoSdk, WeChatSdk} from "./platformMini";
 import {AdSenseSdk, BrowserSdk} from "./platformH5";
 import {CleverSdk} from "./CleverSdk";
 import {DynamicSdkConfig} from "./models";
@@ -22,6 +22,9 @@ export async function createSdk(config: DynamicSdkConfig): Promise<CleverSdk> {
     }
     if (config.platform == 'bilibili') {
         return new BilibiliSdk(config.platform, config.sdk_url, config.sdk_key, config.game_id);
+    }
+    if (config.platform == 'huawei') {
+        return new HuaweiSdk(config.platform, config.sdk_url, config.sdk_key, config.game_id);
     }
     if (config.platform == 'oppo') {
         return new OppoSdk(config.platform, config.sdk_url, config.sdk_key, config.game_id);
