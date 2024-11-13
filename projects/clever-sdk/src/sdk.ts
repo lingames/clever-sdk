@@ -6,7 +6,7 @@
  */
 
 // import { error, sys } from 'cc';
-import * as sha256 from "./sha256.js";
+import  {sha256} from "./sha256";
 // import { GGameData, GlobalDataType } from '../framework/globals';
 // import { error } from 'console';
 
