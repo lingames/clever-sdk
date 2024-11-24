@@ -5,10 +5,9 @@
  * @Last Modified time: 2024-09-02 23:44:37
  */
 
-// import { error, sys } from 'cc';
-import  {sha256} from './sha256';
-// import { GGameData, GlobalDataType } from '../framework/globals';
-// import { error } from 'console';
+
+// @ts-ignore
+import {sha256} from './sha256.js';
 
 declare namespace sys {
     const localStorage: any;
@@ -31,32 +30,62 @@ export class MySdk {
     protected session_key: string = '';
 
     // game_id 游戏编号，每个游戏game_id唯一
-    public async login(): Promise<any> { console.log('dummy-sdk login'); }
+    public async login(): Promise<any> {
+        console.log('dummy-sdk login');
+    }
+
     // async update(){"dummy-sdk update"}
-    public async checkSession(): Promise<boolean> { return false; }
-    public createRewardedVideoAd(adInfo: any): Promise<any> { return Promise.resolve({}); }
+    public async checkSession(): Promise<boolean> {
+        return false;
+    }
+
+    public createRewardedVideoAd(adInfo: any): Promise<any> {
+        return Promise.resolve({});
+    }
 
 
     // 设为常用
-    public async addCommonUse() { }
-    public async checkCommonUse(): Promise<any> { return Promise.resolve({ isSupport: false, isCommonUse: false }); }
+    public async addCommonUse() {
+    }
 
-    public async addShortcut() { }
-    public async checkShortcut(): Promise<any> { return Promise.resolve({ isSupport: false, exist: true, needUpdate: false }); }
+    public async checkCommonUse(): Promise<any> {
+        return Promise.resolve({
+            isSupport: false,
+            isCommonUse: false
+        });
+    }
+
+    public async addShortcut() {
+    }
+
+    public async checkShortcut(): Promise<any> {
+        return Promise.resolve({
+            isSupport: false,
+            exist: true,
+            needUpdate: false
+        });
+    }
 
     // 侧边栏复访
-    public async checkScene(): Promise<any> { return Promise.resolve({ isSupport: false, isScene: false }); }
+    public async checkScene(): Promise<any> {
+        return Promise.resolve({
+            isSupport: false,
+            isScene: false
+        });
+    }
 
-    public async navigateToScene() { }
+    public async navigateToScene() {
+    }
 
     // 分享
-    public async shareAppMessage(param: any): Promise<boolean> { return Promise.resolve(false); }
+    public async shareAppMessage(param: any): Promise<boolean> {
+        return Promise.resolve(false);
+    }
 
     // 获取用户信息
     public async getUserInfo(): Promise<any> {
         return Promise.resolve({});
     }
-
 
 
     constructor(platform: string, sdk_url: string, sdk_key: string, game_id: number, wx: any) {
@@ -81,6 +110,10 @@ export class MySdk {
                 this.sdk_login_url = t_sdk_url + '/devLogin';
             }
         }
+    }
+
+    async initialize() {
+        return;
     }
 
     // 广告接口
@@ -159,7 +192,7 @@ const build_sdk_head = (key: string, req_body: string): any => {
 
     const sign_str = key + '&POST&' + now + '&' + req_body;
     console.log('--------------get hash 111', typeof (sha256));
-    const sha_str = new sha256('SHA-256', 'TEXT', { encoding: 'UTF8' });
+    const sha_str = new sha256('SHA-256', 'TEXT', {encoding: 'UTF8'});
     console.log('--------------get hash 222');
     sha_str.update(sign_str);
     console.log('--------------get hash 333');
@@ -251,8 +284,7 @@ export const http_request = (method: string, url: string, heads: Map<string, str
                         } else {
                             reject('xml http request no response');
                         }
-                    }
-                    catch (e) {
+                    } catch (e) {
                         reject(e);
                     }
                 }
@@ -327,6 +359,76 @@ class BrowserSdk extends MySdk {
     // public async checkShortcut(): Promise<any> {
     //     return { isSupport: false, exist: true, needUpdate: false };
     // }
+}
+
+//* 谷歌平台 */
+class AdSenseSdk extends BrowserSdk {
+    async initialize(): Promise<void> {
+        const script = document.createElement('script');
+        script.async = true;
+        // if (process.env.NODE_ENV !== 'production') {
+        //     script.setAttribute('data-adbreak-test', 'on');
+        // }
+        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${this.videoAd["adSenseId"]}`;
+        script.crossOrigin = 'anonymous';
+        // 将 script 元素插入到文档中
+        document.body.appendChild(script);
+        // @ts-ignore
+        window.adsbygoogle = window.adsbygoogle || [];
+        // @ts-ignore
+        window.adBreak = function (o) {
+            // @ts-ignore
+            adsbygoogle.push(o);
+        }
+        // @ts-ignore
+        window.adConfig = function (o) {
+            // @ts-ignore
+            adsbygoogle.push(o);
+        }
+        // @ts-ignore
+        window.adConfig({
+            sound: 'on',
+            preloadAdBreaks: 'on',
+            onReady: () => {
+                console.log("AdSense onReady");
+            },
+        })
+    }
+
+    public override createRewardedVideoAd(adInfo: any): Promise<any> {
+
+        return new Promise((resolve, reject) => {
+            // @ts-ignore
+            window["adBreak"] && window["adBreak"]({
+                // ad shows at start of next level
+                type: 'reward',
+                name: 'restart-game',
+                beforeAd: () => {
+                    console.log("激励视频开始播放");
+                },
+                // You may also want to mute the game's sound.
+                afterAd: () => {
+                    //关闭，观看完成都会走这里
+                    console.log("激励视频播放结束");
+                },
+                // resume the game flow.
+                // @ts-ignore
+                beforeReward: (showAdFn) => {
+                    showAdFn && showAdFn();
+                },
+                adDismissed: () => {
+                    console.log("中途关闭广告");
+                },
+                adViewed: () => {
+                    //google建议设置状态码，在afterAd中处理奖励逻辑
+                    console.log("玩家完整看完广告");
+                },
+                adBreakDone: () => {
+                    //Always called (if provided) even if an ad didn't show（始终调用，即使广告展示失败了）
+                }
+            });
+        })
+    }
 }
 
 class WeChatSdk extends MySdk {
@@ -412,7 +514,10 @@ class WeChatSdk extends MySdk {
             videoAd.onClose((res: any) => {
                 console.log(res);
                 if ((res && res.isEnded) || res === undefined) {
-                    res = res || { isEnded: true, count: 1 };
+                    res = res || {
+                        isEnded: true,
+                        count: 1
+                    };
                     res.count = res.count || 1;
                     console.info('广告观看结束，此处添加奖励代码', res);
                     resolve(res);
@@ -447,15 +552,24 @@ class WeChatSdk extends MySdk {
     public async checkCommonUse(): Promise<any> {
         if (typeof (this.inner['checkCommonUse']) == 'undefined') {
             console.error('不支持checkCommonUse');
-            return { isSupport: false, isCommonUse: false };
+            return {
+                isSupport: false,
+                isCommonUse: false
+            };
         }
 
         try {
             const ret: any = await promisify_wx('checkCommonUse')();
             console.log('checkCommonUse-ret:', ret);
-            return { isSupport: true, isCommonUse: ret.isCommonUse };
+            return {
+                isSupport: true,
+                isCommonUse: ret.isCommonUse
+            };
         } catch (e) {
-            return { isSupport: true, isCommonUse: false };
+            return {
+                isSupport: true,
+                isCommonUse: false
+            };
         }
     }
 
@@ -478,18 +592,34 @@ class WeChatSdk extends MySdk {
     public async checkShortcut(): Promise<any> {
         if (typeof (this.inner['checkShortcut']) == 'undefined') {
             console.error('不支持checkShortcut');
-            return { isSupport: false, exist: true, needUpdate: false };
+            return {
+                isSupport: false,
+                exist: true,
+                needUpdate: false
+            };
         }
 
         try {
             const ret: any = await promisify_wx('checkShortcut')();
             console.log('checkShortcut-ret:', ret);
-            return { isSupport: true, exist: ret.installed || ret.exist, needUpdate: ret.needUpdate };
+            return {
+                isSupport: true,
+                exist: ret.installed || ret.exist,
+                needUpdate: ret.needUpdate
+            };
         } catch (e: any) {
             if (e.msg === 'apk info is invalid') {
-                return { isSupport: true, exist: false, needUpdate: false };
+                return {
+                    isSupport: true,
+                    exist: false,
+                    needUpdate: false
+                };
             }
-            return { isSupport: true, exist: true, needUpdate: false };
+            return {
+                isSupport: true,
+                exist: true,
+                needUpdate: false
+            };
         }
     }
 
@@ -498,15 +628,24 @@ class WeChatSdk extends MySdk {
     public async checkScene(): Promise<any> {
         if (typeof (this.inner['checkScene']) == 'undefined') {
             console.error('不支持checkScene');
-            return { isSupport: false, isScene: false };
+            return {
+                isSupport: false,
+                isScene: false
+            };
         }
 
         try {
-            const ret: any = await promisify_wx_a('checkScene')({ scene: 'sidebar' });
+            const ret: any = await promisify_wx_a('checkScene')({scene: 'sidebar'});
             console.log('checkScene-ret:', ret);
-            return { isSupport: false, isScene: ret.isExist };
+            return {
+                isSupport: false,
+                isScene: ret.isExist
+            };
         } catch (e) {
-            return { isSupport: true, isScene: false };
+            return {
+                isSupport: true,
+                isScene: false
+            };
         }
     }
 
@@ -517,7 +656,7 @@ class WeChatSdk extends MySdk {
         }
 
         try {
-            const ret: any = await promisify_wx_a('navigateToScene')({ scene: 'sidebar' });
+            const ret: any = await promisify_wx_a('navigateToScene')({scene: 'sidebar'});
             console.log('navigateToScene-ret:', ret);
         } catch (e) {
             console.error('navigateToScene', e);
