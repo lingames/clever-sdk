@@ -1,2 +1,2 @@
-export * from "./report";
-export * from "./access_tokens";
+export {callLogger, reportEvent} from "./report";
+export {setToken, getToken} from "./access_tokens";
