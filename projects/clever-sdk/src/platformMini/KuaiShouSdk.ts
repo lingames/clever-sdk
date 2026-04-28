@@ -1,27 +1,22 @@
 import { CleverSdk } from "../CleverSdk.js";
-import {
-    ksCreateRewardedVideoAd,
-    VideoReward,
-} from "../models/PlayRewardedVideo";
+import { ksCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
 import { ksCreateBannerAd } from "../models/CreateBannerAd.js";
 import { ksInitialize } from "../models/SdkInitialize.js";
 import { LoginData } from "../models/LoginData.js";
 import { ksShareAppMessage } from "../models/ShareAppMessage";
 import { AddShortcut } from "../models/AddShortcut";
 import { ksNavigateToScene } from "../models/NavigateToScene";
-import { EventEndPoint } from "../models";
+import { EventEndPoint, LoginEndPoint } from "../models";
 
-export declare const ks: any;
-
-export var bannerAd: any = null;
+const ks = (globalThis as any).ks;
 
 export class KuaiShouSdk extends CleverSdk {
-    videoAd: any = null;
+    protected bannerAd: any = null;
+    protected videoAd: any = null;
+    private _lastVideoAdUnitId: string = '';
 
     async initialize(config: ksInitialize): Promise<boolean> {
-        this.sdk_login_url =
-            config.sdk_login_url ??
-            "https://api.salesagent.cc/game-analyzer/player/login";
+        this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
         console.info("快手全局对象:", ks);
         return true;
     }
@@ -74,25 +69,25 @@ export class KuaiShouSdk extends CleverSdk {
      * https://open.kuaishou.com/miniGameDocs/gameDev/api/ad/rewardAd/ks.createRewardedVideoAd.html
      */
     playRewardedVideo(adInfo: ksCreateRewardedVideoAd): Promise<VideoReward> {
-        if (this.videoAd == null) {
-            // console.log('创建快手激励视频广告');
+        const adUnitId = adInfo.ksUnitId || adInfo.adUnitId;
+        // 检查广告位 ID 是否变化，如果变化则重新创建广告实例
+        if (this.videoAd == null || this._lastVideoAdUnitId !== adUnitId) {
             this.videoAd = ks.createRewardedVideoAd({
-                adUnitId: adInfo.ksUnitId || adInfo.adUnitId,
+                adUnitId: adUnitId,
                 multiton: adInfo.multiton,
                 multitonRewardMsg: adInfo.multitonMessage,
                 multitonRewardTimes: adInfo.multitonTimes,
             });
+            this._lastVideoAdUnitId = adUnitId;
         }
         return new Promise((resolve, reject) => {
             this.videoAd.onClose((res: any) => {
                 if (res && res.isEnded) {
-                    // 正常播放结束，可以下发游戏奖励
                     resolve({
                         isEnded: true,
                         count: 1,
                     });
                 } else {
-                    // 播放中途退出，不下发游戏奖励
                     resolve({
                         isEnded: false,
                         count: 0,
@@ -115,12 +110,12 @@ export class KuaiShouSdk extends CleverSdk {
     }
 
     async hideBannerAd(): Promise<boolean> {
-        bannerAd?.hide();
+        this.bannerAd?.hide();
         return true;
     }
 
     async destroyBannerAd(): Promise<boolean> {
-        bannerAd?.destroy();
+        this.bannerAd?.destroy();
         return true;
     }
 
@@ -166,7 +161,6 @@ export class KuaiShouSdk extends CleverSdk {
     }
 
     // https://open.kuaishou.com/miniGameDocs/gameDev/open-function/siderBarRevisit.html
-    // 不支持
     async addCommonUse(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             ks.addCommonUse({
@@ -202,10 +196,7 @@ export class KuaiShouSdk extends CleverSdk {
         return super.checkSliderBarIsAvailable();
     }
 
-    async reportEvent(
-        id: string,
-        custom: Record<string, any>,
-    ): Promise<boolean> {
+    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
         return ks.request({
             url: EventEndPoint,
             method: "POST",

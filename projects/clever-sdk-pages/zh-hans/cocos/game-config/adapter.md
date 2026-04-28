@@ -30,7 +30,7 @@ CleverSdk (基类)
 ### 小游戏平台
 - **[微信小游戏](./platformMini/wechat.md)** — wx 全局对象，支持登录、激励视频、Banner 广告、分享、用户信息
 - **[抖音小游戏](./platformMini/douyin.md)** — dy 全局对象，支持登录、激励视频、Banner 广告、分享、侧边栏、桌面快捷方式
-- **[Tiktok小游戏](./platformMini/tiktok.md)** — TTMinis 全局对象，支持登录、激励视频、Banner 广告、分享、桌面快捷方式、侧边栏跳转
+- **[TikTok 小游戏](./platformMini/tiktok.md)** — TTMinis 全局对象，支持登录、授权、激励视频、Banner 广告、插屏广告、分享、桌面快捷方式、侧边栏检测、入口任务
 - **[快手小游戏](./platformMini/kuaishou.md)** — ks 全局对象，支持登录、激励视频、Banner 广告、分享、桌面快捷方式、侧边栏跳转
 - **[华为快游戏](./platformMini/huawei.md)** — qg 全局对象，支持登录、激励视频、Banner 广告
 - **[OPPO 小游戏](./platformMini/oppo.md)** — qg 全局对象，支持登录、激励视频、Banner 广告、原生广告

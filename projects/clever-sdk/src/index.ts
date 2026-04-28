@@ -1,15 +1,7 @@
 export * from "./platformH5/index.js";
 export * from "./platformMini/index.js";
 export * from "./platformNative/index.js";
-import {
-    BilibiliSdk,
-    DouyinSdk,
-    HuaweiSdk,
-    KuaiShouSdk,
-    OppoSdk,
-    WeChatSdk,
-    TiktokSdk,
-} from "./platformMini";
+import { BilibiliSdk, DouyinSdk, HuaweiSdk, KuaiShouSdk, OppoSdk, WeChatSdk, TiktokSdk } from "./platformMini";
 import { M4399Sdk } from "./platformNative";
 import { CleverSdk } from "./CleverSdk.js";
 import { AdSenseSdk, MiniGameSDK, MockSdk, AhagameSdk } from "./platformH5";
@@ -53,41 +45,21 @@ export async function createSdk(config: DynamicSdkConfig): Promise<CleverSdk> {
         return sdk;
     }
     if (platform == "bilibili") {
-        return new BilibiliSdk(
-            platform,
-            config.sdk_login_url,
-            config.project_id.toString(),
-        );
+        return new BilibiliSdk(platform, config.sdk_login_url, config.project_id.toString());
     }
     if (platform == "hua-wei") {
-        return new HuaweiSdk(
-            platform,
-            config.sdk_login_url,
-            config.project_id.toString(),
-        );
+        return new HuaweiSdk(platform, config.sdk_login_url, config.project_id.toString());
     }
     if (platform == "oppo") {
-        return new OppoSdk(
-            platform,
-            config.sdk_login_url,
-            config.project_id.toString(),
-        );
+        return new OppoSdk(platform, config.sdk_login_url, config.project_id.toString());
     }
     if (platform == "google") {
-        let sdk = new AdSenseSdk(
-            platform,
-            config.sdk_login_url,
-            config.project_id.toString(),
-        );
+        let sdk = new AdSenseSdk(platform, config.sdk_login_url, config.project_id.toString());
         await sdk.initialize({ adSenseId: "" });
         return sdk;
     }
     if (config.platform == "ahagame") {
-        let sdk = new AhagameSdk(
-            config.platform,
-            config.project_id,
-            config.game_id || "",
-        );
+        let sdk = new AhagameSdk(config.platform, config.project_id, config.game_id || "");
         const ahagameInit = config as any;
         await sdk.initialize({
             adSenseId: ahagameInit.adSenseId || "",
@@ -116,20 +88,12 @@ export async function createSdk(config: DynamicSdkConfig): Promise<CleverSdk> {
         return sdk;
     }
     if (platform == "mock") {
-        let sdk = new MockSdk(
-            platform,
-            config.project_id,
-            gameId || "mock_game_id",
-        );
+        let sdk = new MockSdk(platform, config.project_id, gameId || "mock_game_id");
         const mockInit = config as any;
         await sdk.initialize(mockInit.mockConfig || {});
         return sdk;
     }
-    return new MockSdk(
-        platform,
-        config.sdk_login_url,
-        config.project_id.toString(),
-    );
+    return new MockSdk(platform, config.sdk_login_url, config.project_id.toString());
 }
 
 /**
@@ -164,24 +128,21 @@ function getPlatformGameId(config: DynamicSdkConfig, platform: string): string {
  * Auto-detect platform based on environment
  */
 function detectPlatform(): string {
-    // @ts-ignore
-    if (typeof wx !== "undefined" && wx.getSystemInfo) {
+    const g = globalThis as any;
+    if (typeof g.wx !== "undefined" && g.wx.getSystemInfo) {
         return "wechat";
     }
-    // @ts-ignore
-    if (typeof tt !== "undefined" && tt.getSystemInfo) {
+    if (typeof g.tt !== "undefined" && g.tt.getSystemInfo) {
         return "dou-yin";
     }
-    // @ts-ignore
-    if (typeof TTMinis !== "undefined" && TTMinis.getSystemInfoSync) {
+    if (typeof g.TTMinis !== "undefined" && g.TTMinis.getSystemInfoSync) {
         return "tiktok";
     }
-    // @ts-ignore
-    if (typeof ks !== "undefined" && ks.getSystemInfo) {
+    if (typeof g.ks !== "undefined" && g.ks.getSystemInfo) {
         return "kuai-shou";
     }
-    if (typeof navigator !== "undefined") {
-        const userAgent = navigator.userAgent.toLowerCase();
+    if (typeof g.navigator !== "undefined") {
+        const userAgent = g.navigator.userAgent.toLowerCase();
         if (userAgent.includes("bilibili")) {
             return "bilibili";
         }
@@ -194,7 +155,7 @@ function detectPlatform(): string {
         if (userAgent.includes("google") || userAgent.includes("android")) {
             return "google";
         }
-        if (userAgent.includes("minigame") || userAgent.includes("minigame")) {
+        if (userAgent.includes("minigame")) {
             return "minigame";
         }
     }

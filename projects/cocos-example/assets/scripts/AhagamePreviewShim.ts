@@ -22,16 +22,8 @@ export function installAhagamePreviewShims(): void {
 
     if (typeof fetch !== "undefined") {
         const origFetch = fetch;
-        globalThis.fetch = function (
-            input: RequestInfo | URL,
-            init?: RequestInit,
-        ): Promise<Response> {
-            const url =
-                typeof input === "string"
-                    ? input
-                    : input instanceof Request
-                      ? input.url
-                      : String(input);
+        globalThis.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+            const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
             if (url.indexOf("manifest_transsion.json") !== -1) {
                 return Promise.resolve(
                     new Response(manifestJson, {
@@ -47,15 +39,10 @@ export function installAhagamePreviewShims(): void {
     if (typeof navigator !== "undefined" && navigator.serviceWorker?.register) {
         const sw = navigator.serviceWorker;
         const orig = sw.register.bind(sw);
-        sw.register = function (
-            scriptURL: string | URL,
-            options?: RegistrationOptions,
-        ) {
+        sw.register = function (scriptURL: string | URL, options?: RegistrationOptions) {
             const s = String(scriptURL);
             if (s.indexOf("sw_transsion") !== -1) {
-                console.log(
-                    "[CleverDemo] 减灾：跳过 sw_transsion ServiceWorker（预览无静态脚本文件）",
-                );
+                console.log("[CleverDemo] 减灾：跳过 sw_transsion ServiceWorker（预览无静态脚本文件）");
                 return Promise.resolve({
                     scope: "",
                     unregister: () => Promise.resolve(true),
@@ -76,14 +63,8 @@ export function installAhagamePreviewShims(): void {
     }
 
     // `<link rel="manifest" href="...manifest_transsion.json">` 由浏览器直接请求，不经过 fetch，需在插入后改为 blob URL
-    if (
-        typeof document !== "undefined" &&
-        typeof URL !== "undefined" &&
-        typeof MutationObserver !== "undefined"
-    ) {
-        const manifestBlobUrl = URL.createObjectURL(
-            new Blob([manifestJson], { type: "application/json" }),
-        );
+    if (typeof document !== "undefined" && typeof URL !== "undefined" && typeof MutationObserver !== "undefined") {
+        const manifestBlobUrl = URL.createObjectURL(new Blob([manifestJson], { type: "application/json" }));
         const rewriteManifestLinks = (): void => {
             document.querySelectorAll('link[rel="manifest"]').forEach((el) => {
                 const href = el.getAttribute("href") || "";
@@ -95,19 +76,14 @@ export function installAhagamePreviewShims(): void {
                 }
                 el.setAttribute("href", manifestBlobUrl);
                 el.setAttribute("data-clever-manifest-shim", "1");
-                console.log(
-                    "[CleverDemo] 减灾：manifest link 已指向本地 blob，避免根路径 manifest 404",
-                );
+                console.log("[CleverDemo] 减灾：manifest link 已指向本地 blob，避免根路径 manifest 404");
             });
         };
         rewriteManifestLinks();
-        new MutationObserver(() => rewriteManifestLinks()).observe(
-            document.documentElement,
-            {
-                childList: true,
-                subtree: true,
-            },
-        );
+        new MutationObserver(() => rewriteManifestLinks()).observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+        });
     }
 
     // 部分脚本用 XHR 拉 manifest
@@ -115,23 +91,11 @@ export function installAhagamePreviewShims(): void {
         const XO = XMLHttpRequest.prototype;
         const origOpen = XO.open;
         const origSend = XO.send;
-        XO.open = function (
-            method: string,
-            url: string | URL,
-            ...rest: unknown[]
-        ) {
-            (this as XMLHttpRequest & { _cleverUrl?: string })._cleverUrl =
-                String(url);
-            return (origOpen as (...a: unknown[]) => void).apply(this, [
-                method,
-                url,
-                ...rest,
-            ]);
+        XO.open = function (method: string, url: string | URL, ...rest: unknown[]) {
+            (this as XMLHttpRequest & { _cleverUrl?: string })._cleverUrl = String(url);
+            return (origOpen as (...a: unknown[]) => void).apply(this, [method, url, ...rest]);
         };
-        XO.send = function (
-            this: XMLHttpRequest & { _cleverUrl?: string },
-            body?: Document | XMLHttpRequestBodyInit | null,
-        ) {
+        XO.send = function (this: XMLHttpRequest & { _cleverUrl?: string }, body?: Document | XMLHttpRequestBodyInit | null) {
             const u = this._cleverUrl || "";
             if (u.indexOf("manifest_transsion.json") !== -1) {
                 queueMicrotask(() => {

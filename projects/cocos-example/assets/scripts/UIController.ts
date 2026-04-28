@@ -44,21 +44,18 @@ export class UIController extends Component {
     autoCreateDemoButtons = true;
 
     @property({
-        tooltip:
-            "在画面底部显示一行字，用于确认游戏脚本已执行（不依赖控制台是否显示 TS 日志）",
+        tooltip: "在画面底部显示一行字，用于确认游戏脚本已执行（不依赖控制台是否显示 TS 日志）",
     })
     showRuntimeDebugOnScreen = true;
 
     @property({
-        tooltip:
-            "为 true 时在 onLoad 内 createSdk 并注入 CleverSdkGlobals（默认 mock，传音选 ahagame）",
+        tooltip: "为 true 时在 onLoad 内 createSdk 并注入 CleverSdkGlobals（默认 mock，传音选 ahagame）",
     })
     autoInjectCleverSdk = true;
 
     @property({
         type: Enum(CleverDemoPlatform),
-        tooltip:
-            "Mock：不调真实广告。Ahagame：加载 h5sdk（默认已填示例参数，与仓库 game/index.html 一致）。",
+        tooltip: "Mock：不调真实广告。Ahagame：加载 h5sdk（默认已填示例参数，与仓库 game/index.html 一致）。",
     })
     cleverDemoPlatform = CleverDemoPlatform.Ahagame;
 
@@ -68,8 +65,7 @@ export class UIController extends Component {
     ahagameAppKey = "5024356";
 
     @property({
-        tooltip:
-            "AdSense client（与 game/index.html 壳一致；可改为自家 ca-pub）",
+        tooltip: "AdSense client（与 game/index.html 壳一致；可改为自家 ca-pub）",
     })
     ahagameAdSenseId = "ca-pub-3665476663852390";
 
@@ -102,9 +98,7 @@ export class UIController extends Component {
         console.log(
             `[CleverDemo] UIController.onLoad node=${this.node.name} scene=${director.getScene()?.name ?? "(none)"} autoCreateDemoButtons=${this.autoCreateDemoButtons}`,
         );
-        console.warn(
-            "[CleverDemo] UIController.onLoad（warn 便于在 Creator 里过滤 Log 时仍可见）",
-        );
+        console.warn("[CleverDemo] UIController.onLoad（warn 便于在 Creator 里过滤 Log 时仍可见）");
         if (this.autoInjectCleverSdk) {
             this._cleverSdkInjectPromise = this.ensureCleverSdkInjected();
         }
@@ -133,9 +127,7 @@ export class UIController extends Component {
             } else {
                 const key = (this.ahagameAppKey || "").trim();
                 if (!key) {
-                    console.warn(
-                        "[CleverDemo] 已选 Ahagame 但 ahagameAppKey 为空：请到 Dlightek/传音后台取应用 App Key 填入后再试。",
-                    );
+                    console.warn("[CleverDemo] 已选 Ahagame 但 ahagameAppKey 为空：请到 Dlightek/传音后台取应用 App Key 填入后再试。");
                 } else {
                     console.log(
                         "[CleverDemo] 已注入 AhagameSdk；可点「传音广告 / SDK测试」。若无广告请查控制台网络是否加载 hippoobox adsdk、及 AdSense 区域策略。",
@@ -143,10 +135,7 @@ export class UIController extends Component {
                 }
             }
         } catch (e) {
-            console.warn(
-                "[CleverDemo] createSdk 失败，按钮将提示未注入 cleverSdk",
-                e,
-            );
+            console.warn("[CleverDemo] createSdk 失败，按钮将提示未注入 cleverSdk", e);
         }
     }
 
@@ -188,9 +177,7 @@ export class UIController extends Component {
     }
 
     private scheduleDemoUiBuild() {
-        const allowAuto =
-            this.autoCreateDemoButtons === undefined ||
-            this.autoCreateDemoButtons === true;
+        const allowAuto = this.autoCreateDemoButtons === undefined || this.autoCreateDemoButtons === true;
         if (!allowAuto) {
             return;
         }
@@ -204,10 +191,7 @@ export class UIController extends Component {
             if (this.node.getChildByName("CleverSdkDemoButtons")) {
                 return;
             }
-            console.log(
-                "[CleverDemo] UIController 构建演示 UI，当前场景:",
-                director.getScene()?.name,
-            );
+            console.log("[CleverDemo] UIController 构建演示 UI，当前场景:", director.getScene()?.name);
             this.setupDemoButtons();
         }, 0);
     }
@@ -224,9 +208,7 @@ export class UIController extends Component {
                     adUnitId: "",
                 });
             } else {
-                console.warn(
-                    '[CleverDemo] 未注入 cleverSdk（请 import { bindCleverSdk } from "./CleverSdkGlobals"）',
-                );
+                console.warn('[CleverDemo] 未注入 cleverSdk（请 import { bindCleverSdk } from "./CleverSdkGlobals"）');
             }
         })();
     }
@@ -268,9 +250,7 @@ export class UIController extends Component {
             }
             const player = await s.login();
             const openId =
-                player && typeof player === "object" && "open_id" in player
-                    ? String((player as { open_id?: string }).open_id ?? "")
-                    : "";
+                player && typeof player === "object" && "open_id" in player ? String((player as { open_id?: string }).open_id ?? "") : "";
             s.reportContext({ player_anonymous: openId });
         })();
     }
@@ -284,9 +264,7 @@ export class UIController extends Component {
     public onTranssionAd() {
         void (async () => {
             await this.waitForCleverSdkInjected();
-            console.log(
-                "[CleverDemo] transsionAd 传音广告 → playRewardedVideo",
-            );
+            console.log("[CleverDemo] transsionAd 传音广告 → playRewardedVideo");
             if (this.cleverDemoPlatform === CleverDemoPlatform.Mock) {
                 console.warn(
                     "[CleverDemo] 当前为 Mock：不会加载传音 h5sdk，「立即结束」是预期行为。要看广告：演示平台选 Ahagame + 填 ahagameAppKey，保存后重新预览。",
@@ -314,9 +292,7 @@ export class UIController extends Component {
      * 要看到真实广告：UIController「演示平台」选 Ahagame，填写 `ahagameAppKey`，保存场景后重新预览。
      */
     public onSdkTest() {
-        console.log(
-            "[CleverDemo] SDK测试 → playRewardedVideo（与传音广告同一路径）",
-        );
+        console.log("[CleverDemo] SDK测试 → playRewardedVideo（与传音广告同一路径）");
         this.onTranssionAd();
     }
 
@@ -351,8 +327,7 @@ export class UIController extends Component {
         w.alignMode = 2;
 
         const lab = n.addComponent(Label);
-        lab.string =
-            "脚本已执行：UIController.onLoad（若能看到本行=游戏在跑；Scene 里 [Scene]/wasm 是引擎日志，不是 TS 的 console）";
+        lab.string = "脚本已执行：UIController.onLoad（若能看到本行=游戏在跑；Scene 里 [Scene]/wasm 是引擎日志，不是 TS 的 console）";
         lab.fontSize = 15;
         lab.lineHeight = 20;
         lab.color = new Color(255, 230, 120, 255);
@@ -446,9 +421,7 @@ export class UIController extends Component {
         const leftX = -248;
         let yL = 96;
         for (const s of leftSpecs) {
-            const btn = this.makeGraphicsButton(s.name, s.label, uiLayer, () =>
-                s.onClick(),
-            );
+            const btn = this.makeGraphicsButton(s.name, s.label, uiLayer, () => s.onClick());
             btn.setParent(root);
             btn.setPosition(new Vec3(leftX, yL, 0));
             yL -= 76;
@@ -466,9 +439,7 @@ export class UIController extends Component {
         const rightX = 248;
         let yR = 58;
         for (const s of rightSpecs) {
-            const btn = this.makeGraphicsButton(s.name, s.label, uiLayer, () =>
-                s.onClick(),
-            );
+            const btn = this.makeGraphicsButton(s.name, s.label, uiLayer, () => s.onClick());
             btn.setParent(root);
             btn.setPosition(new Vec3(rightX, yR, 0));
             yR -= 76;
@@ -484,12 +455,7 @@ export class UIController extends Component {
         }
     }
 
-    private makeGraphicsButton(
-        nodeName: string,
-        text: string,
-        uiLayer: number,
-        onClick: () => void,
-    ): Node {
+    private makeGraphicsButton(nodeName: string, text: string, uiLayer: number, onClick: () => void): Node {
         const n = new Node(nodeName);
         n.layer = uiLayer;
         n.addComponent(UIOpacity).opacity = 255;
@@ -538,11 +504,7 @@ export class UIController extends Component {
                 continue;
             }
             if (row.tf.hitTest(loc, wid)) {
-                console.log(
-                    "[CleverDemo] 按钮点击",
-                    `name=${row.nodeName}`,
-                    `label=${row.text}`,
-                );
+                console.log("[CleverDemo] 按钮点击", `name=${row.nodeName}`, `label=${row.text}`);
                 row.onClick();
                 break;
             }

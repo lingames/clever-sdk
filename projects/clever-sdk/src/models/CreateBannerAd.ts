@@ -1,6 +1,4 @@
-export type CreateBannerAd = wxCreateBannerAd &
-    ksCreateBannerAd &
-    qgCreateBannerAd;
+export type CreateBannerAd = wxCreateBannerAd & ksCreateBannerAd & qgCreateBannerAd;
 
 export interface wxCreateBannerAd {
     // 广告单元 id

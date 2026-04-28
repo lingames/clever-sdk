@@ -1,6 +1,6 @@
 # TikTok 小游戏适配器
 
-TikTok 小游戏适配器通过 `tt` 全局对象调用 TikTok 平台 API，提供登录、广告、分享、侧边栏、桌面快捷方式等功能。
+TikTok 小游戏适配器通过 `TTMinis` 全局对象调用 TikTok 平台 API，提供登录、授权、广告（激励视频、Banner、插屏）、分享、侧边栏、桌面快捷方式、入口任务等功能。
 
 ## 类定义
 
@@ -33,35 +33,40 @@ const data = await sdk.login();
 
 **登录流程**:
 
-1. 调用 `TTMinis.login({ force: false })` 获取临时登录凭证 `code`
-2. 将 `code` 连同 `platform: "tik-tok"`、`project_id` 发送到 SDK 登录服务器
+1. 调用 `TTMinis.game.login()` 获取临时登录凭证 `code`
+2. 将 `code` 连同 `platform`、`project_id` 发送到 SDK 登录服务器
 3. 服务器返回 `session_key`，SDK 自动保存
 
-> 参考: [TTMinis.login](https://developers.tiktok.com/doc/mini-games-sdk-login)
+> 参考: [TikTok 登录](https://developers.tiktok.com/doc/mini-games-sdk-login)
+
+## 授权登录
+
+支持指定 scope 的授权登录，适用于需要额外用户信息的场景。
+
+```ts
+const data = await sdk.authorize("user.info");
+```
+
+- `scope` 可选，指定授权范围（如 `user.info`）
+- 若平台不支持 `authorize` API，会抛出异常
 
 ## 激励视频广告
 
 ```ts
 interface ttCreateRewardedVideoAd {
-    adUnitId?: string;           // 通用广告单元 ID
-    ttUnitId?: string;           // TikTok 专用广告 ID
-    multiton?: boolean;          // 是否开启再得广告模式
-    multitonMessage?: string[];  // 再得广告奖励文案，单个最长 7 字符
-    multitonTimes?: 1|2|3|4;     // 额外观看次数（1-4）
+    adUnitId?: string;  // 通用广告单元 ID
+    ttUnitId?: string;  // TikTok 专用广告 ID
 }
 
 const reward = await sdk.playRewardedVideo({
-    ttUnitId: "your_tt_ad_unit_id",
-    multiton: true,
-    multitonMessage: ["金币", "钻石"],
-    multitonTimes: 2
+    ttUnitId: "your_tt_ad_unit_id"
 });
 // reward.isEnded === true 时发放奖励
 ```
 
-**再得广告模式**: 开启后，用户看完广告可继续观看获取额外奖励，`multitonMessage` 按顺序展示文案。
+**广告实例复用**: SDK 内部会缓存广告实例，当 `adUnitId` 变化时自动重新创建。
 
-> 参考: [TTMinis.game.createRewardedVideoAd](https://developers.tiktok.com/doc/mini-games-sdk-iaa)
+> 参考: [TikTok 激励视频](https://developers.tiktok.com/doc/mini-games-sdk-iaa)
 
 ## Banner 广告
 
@@ -77,25 +82,28 @@ await sdk.createBannerAd({
     adIntervals: 30,
     style: { left: 0, top: 100, width: 300, height: 50 }
 });
+await sdk.showBannerAd();
+await sdk.hideBannerAd();
+await sdk.destroyBannerAd();
 ```
 
-> 参考: [TTMinis.game.createBannerAd](https://developers.tiktok.com/doc/mini-games-sdk-iaa)
+> 参考: [TikTok Banner 广告](https://developers.tiktok.com/doc/mini-games-sdk-iaa)
 
 ## 插屏广告
 
 ```ts
 interface ttCreateInterstitialAd {
     adUnitId?: string;  // 通用广告单元 ID
-    ttUnitId?: string;  // Tiktok 专用广告 ID（优先）
+    ttUnitId?: string;  // TikTok 专用广告 ID
 }
 
-const result = await sdk.showInterstitialAd({
-    ttUnitId: "your_tt_interstitial_id"
+const reward = await sdk.showInterstitialAd({
+    ttUnitId: "your_interstitial_ad_unit_id"
 });
-// result.isEnded === true 表示展示成功
+// reward.isEnded === true 表示展示成功
 ```
 
-> 参考: `TTMinis.game.createInterstitialAd` / `InterstitialAd.show`
+> 参考: [TikTok 插屏广告](https://developers.tiktok.com/doc/mini-games-sdk-iaa)
 
 ## 分享
 
@@ -117,7 +125,7 @@ const success = await sdk.shareAppMessage({
 });
 ```
 
-> 参考: [TTMinis.shareAppMessage](https://developers.tiktok.com/doc/mini-games-sdk-share-app-message)
+> 参考: [TikTok 分享](https://developers.tiktok.com/doc/mini-games-sdk-share-app-message)
 
 ## 侧边栏检测
 
@@ -131,20 +139,11 @@ const result = await sdk.checkScene();
 // result.isSupport === true && result.isScene === true 表示从侧边栏进入
 ```
 
-> 参考: [TTMinis.checkScene](https://developers.tiktok.com/doc/mini-games-sdk-check-scene)
+- 若平台不支持 `checkScene` API，返回 `{ isSupport: false, isScene: false }`
+
+> 参考: [TikTok 侧边栏](https://developers.tiktok.com/doc/mini-games-sdk-check-scene)
 
 ## 桌面快捷方式
-
-### 检查是否已添加
-
-```ts
-const status = await sdk.checkShortcut();
-// status.isSupport — 是否支持添加到桌面
-// status.exist — 是否已添加
-// status.needUpdate — 是否需要更新
-```
-
-> 参考: [TTMinis.checkShortcut](https://developers.tiktok.com/doc/mini-games-sdk-check-shortcut)
 
 ### 添加到桌面
 
@@ -154,7 +153,50 @@ await sdk.addShortcut({
 });
 ```
 
-> 参考: [TTMinis.addShortcut](https://developers.tiktok.com/doc/mini-games-sdk-add-shortcut)
+- 若平台不支持 `addShortcut` API，返回 `false`
+
+### 检查快捷方式奖励
+
+```ts
+const status = await sdk.checkShortcut();
+// 或
+const status = await sdk.getShortcutMissionReward();
+
+// status.isSupport — 是否支持该功能
+// status.canReceiveReward — 是否可以领取奖励
+```
+
+- `checkShortcut()` 实际调用 `getShortcutMissionReward()`
+- 若平台不支持，返回 `{ isSupport: false, canReceiveReward: false }`
+
+## 入口任务
+
+### 启动入口任务
+
+```ts
+const success = await sdk.startEntranceMission();
+```
+
+- 若平台不支持，返回 `false`
+
+### 获取入口任务奖励
+
+```ts
+const status = await sdk.getEntranceMissionReward();
+// status.isSupport — 是否支持该功能
+// status.canReceiveReward — 是否可以领取奖励
+```
+
+- 若平台不支持，返回 `{ isSupport: false, canReceiveReward: false }`
+
+## API 能力检测
+
+```ts
+const supported = sdk.canIUse("game.login");
+```
+
+- 检测当前 TikTok 宿主版本是否支持指定 API
+- 返回 `boolean`
 
 ## 设为常用
 
@@ -164,7 +206,7 @@ await sdk.addCommonUse();
 
 ## 事件上报
 
-TikTok 适配器重写了 `reportEvent`，直接通过 `TTMinis.request` 发送事件到上报服务器：
+TikTok 适配器重写了 `reportEvent`，直接通过 `TTMinis.game.request` 发送事件到上报服务器：
 
 ```ts
 await sdk.reportEvent("event_id", { key: "value" });

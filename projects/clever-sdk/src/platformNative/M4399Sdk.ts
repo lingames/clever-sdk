@@ -1,7 +1,7 @@
 import { CleverSdk } from "../CleverSdk";
 import { SdkInitialize, m4399Initialize } from "../models/SdkInitialize";
 import { LoginData } from "../models/LoginData";
-
+import { LoginEndPoint } from "../models/index";
 declare const jsb: any;
 declare const cc: any;
 
@@ -14,25 +14,15 @@ export class M4399Sdk extends CleverSdk {
 
     public override async initialize(config: SdkInitialize): Promise<boolean> {
         const m4399Config = config as m4399Initialize;
-        this.sdk_login_url =
-            m4399Config.sdk_login_url ??
-            "https://api.salesagent.cc/game-analyzer/player/login";
+        this.sdk_login_url = m4399Config.sdk_login_url ?? LoginEndPoint;
 
         if (typeof jsb === "undefined") {
-            console.error(
-                "M4399Sdk: jsb is undefined, not in native environment",
-            );
+            console.error("M4399Sdk: jsb is undefined, not in native environment");
             return false;
         }
 
         try {
-            jsb.reflection.callStaticMethod(
-                M4399Sdk.JAVA_CLASS,
-                "init",
-                "(Ljava/lang/String;Ljava/lang/String;)V",
-                this.game_id,
-                this.sdk_key,
-            );
+            jsb.reflection.callStaticMethod(M4399Sdk.JAVA_CLASS, "init", "(Ljava/lang/String;Ljava/lang/String;)V", this.game_id, this.sdk_key);
             return true;
         } catch (e) {
             console.error("M4399Sdk initialize error:", e);
@@ -61,11 +51,7 @@ export class M4399Sdk extends CleverSdk {
             };
 
             try {
-                jsb.reflection.callStaticMethod(
-                    M4399Sdk.JAVA_CLASS,
-                    "login",
-                    "()V",
-                );
+                jsb.reflection.callStaticMethod(M4399Sdk.JAVA_CLASS, "login", "()V");
             } catch (e) {
                 reject("Call native login failed: " + e);
             }

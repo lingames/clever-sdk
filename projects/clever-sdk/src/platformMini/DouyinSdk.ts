@@ -1,30 +1,21 @@
 import { CleverSdk } from "../CleverSdk.js";
-import {
-    dyCreateRewardedVideoAd,
-    VideoReward,
-} from "../models/PlayRewardedVideo";
+import { dyCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
 import { dyCreateBannerAd } from "../models/CreateBannerAd";
 import { dyInitialize } from "../models/SdkInitialize";
 import { dyAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
 import { ShareAppMessage, dyShareAppMessage } from "../models/ShareAppMessage";
+import { LoginEndPoint, CheckSceneResult } from "../models";
 
-// @ts-ignore
-const tt = typeof globalThis.tt !== "undefined" ? globalThis.tt : undefined;
-
-interface CheckSceneResult {
-    isSupport: boolean;
-    isScene: boolean;
-}
+const tt = (globalThis as any).tt;
 
 export class DouyinSdk extends CleverSdk {
-    private videoAd: any = null;
-    private bannerAd: any = null;
+    protected videoAd: any = null;
+    protected bannerAd: any = null;
+    private _lastVideoAdUnitId: string = '';
 
     async initialize(config: dyInitialize): Promise<boolean> {
-        this.sdk_login_url =
-            config.sdk_login_url ??
-            "https://api.salesagent.cc/game-analyzer/player/login";
+        this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
         console.info("抖音全局对象:", tt);
         return true;
     }
@@ -37,7 +28,7 @@ export class DouyinSdk extends CleverSdk {
                     if (res.code) {
                         const body = {
                             project_id: this.project_id,
-                            platform: "dou-yin",
+                            platform: this.platform,
                             login_code: res.code,
                         };
                         // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/network/initiate-a-request/tt-request
@@ -69,15 +60,18 @@ export class DouyinSdk extends CleverSdk {
     }
 
     playRewardedVideo(config: dyCreateRewardedVideoAd): Promise<VideoReward> {
-        if (this.videoAd == null) {
+        const adUnitId = config.ttUnitId || config.adUnitId;
+        // 检查广告位 ID 是否变化，如果变化则重新创建广告实例
+        if (this.videoAd == null || this._lastVideoAdUnitId !== adUnitId) {
             console.log("创建抖音激励视频广告");
             // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/ads/tt-create-rewarded-video-ad
             this.videoAd = tt.createRewardedVideoAd({
-                adUnitId: config.ttUnitId || config.adUnitId,
+                adUnitId: adUnitId,
                 multiton: config.multiton,
                 multitonRewardMsg: config.multitonMessage,
                 multitonRewardTimes: config.multitonTimes,
             });
+            this._lastVideoAdUnitId = adUnitId;
         }
         return new Promise((resolve, reject) => {
             this.videoAd.onClose((res: any) => {
@@ -208,10 +202,7 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
-    async reportEvent(
-        id: string,
-        custom: Record<string, any>,
-    ): Promise<boolean> {
+    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
         return tt.request({
             url: "https://api.salesagent.cc/game-logger/event",
             method: "POST",

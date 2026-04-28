@@ -1,14 +1,10 @@
 import { CleverSdk } from "../CleverSdk.js";
-import {
-    qgCreateRewardedVideoAd,
-    VideoReward,
-} from "../models/PlayRewardedVideo";
+import { qgCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
 import { qgCreateBannerAd } from "../models/CreateBannerAd.js";
 import { OppoLoginData } from "../models/LoginData.js";
 import { qgCreateNativeAd } from "../models/CreateNativeAd.js";
 
-// 硬核联盟全局对象
-export declare const qg: any;
+const qg = (globalThis as any).qg;
 
 export class OppoSdk extends CleverSdk {
     protected videoAd: any = null;
@@ -58,7 +54,6 @@ export class OppoSdk extends CleverSdk {
             this.videoAd.onClick((obj: any) => {
                 console.log(`广告点击: code: ${obj.code},msg: '${obj.msg}'`);
             });
-            // 视频关闭
             this.videoAd.onClose((res: any) => {
                 console.log("广告结束", JSON.stringify(res));
                 if ((res && res.isEnded) || res === undefined) {
@@ -67,10 +62,7 @@ export class OppoSdk extends CleverSdk {
                         count: 1,
                     };
                     res.count = res.count || 1;
-                    console.info(
-                        "广告观看结束，触发奖励代码",
-                        JSON.stringify(res),
-                    );
+                    console.info("广告观看结束，触发奖励代码", JSON.stringify(res));
                     resolve(res);
                 } else {
                     console.error("广告没看完，不能获奖", JSON.stringify(res));
@@ -139,16 +131,6 @@ export class OppoSdk extends CleverSdk {
     async hideNativeAd(): Promise<boolean> {
         return this.customAd.hide();
     }
-
-    // 不支持
-    // async addShortcut(options: AddShortcut): Promise<object> {
-    //     return super.addShortcut(options);
-    // }
-
-    // 不支持
-    // async addCommonUse(): Promise<void> {
-    //     super.addCommonUse();
-    // }
 
     async shareAppMessage(param: any): Promise<boolean> {
         console.log("不支持");

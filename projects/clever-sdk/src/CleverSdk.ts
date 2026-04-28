@@ -59,9 +59,7 @@ export class CleverSdk {
     /**
      * 播放激励广告, 如果未创建的话, 创建一个
      */
-    public async playRewardedVideo(
-        adInfo: PlayRewardedVideo,
-    ): Promise<VideoReward> {
+    public async playRewardedVideo(adInfo: PlayRewardedVideo): Promise<VideoReward> {
         return Promise.resolve({
             isEnded: false,
             count: 0,
@@ -89,13 +87,8 @@ export class CleverSdk {
     }
 
     // 插屏广告接口
-    public async showInterstitialAd(
-        _adInfo: CreateInterstitialAd,
-    ): Promise<VideoReward> {
-        return {
-            isEnded: false,
-            count: 0,
-        };
+    public async showInterstitialAd(adInfo: CreateInterstitialAd): Promise<VideoReward> {
+        return { isEnded: false, count: 0 };
     }
 
     // 原生广告接口
@@ -189,11 +182,7 @@ export class CleverSdk {
         }
     }
 
-    public async reportAdvertise(
-        id: string,
-        stage: AdvertiseStage,
-        data: Record<string, any>,
-    ): Promise<boolean> {
+    public async reportAdvertise(id: string, stage: AdvertiseStage, data: Record<string, any>): Promise<boolean> {
         if (stage == AdvertiseStage.Expose) {
             data.status = 0;
         } else if (stage == AdvertiseStage.Click) {
@@ -208,10 +197,7 @@ export class CleverSdk {
         return await this.reportEvent(id, data);
     }
 
-    public async reportEvent(
-        id: string,
-        data: Record<string, any>,
-    ): Promise<boolean> {
+    public async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
         return Promise.resolve(false);
     }
 }

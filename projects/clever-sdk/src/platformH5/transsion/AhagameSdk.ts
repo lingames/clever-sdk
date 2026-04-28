@@ -1,21 +1,11 @@
 //* 传音 / Dlightek H5（Ahagame h5sdk）— 见 docs/transsion-ads.md */
-import {
-    ggCreateRewardedVideoAd,
-    VideoReward,
-} from "../../models/PlayRewardedVideo";
+import { ggCreateRewardedVideoAd, VideoReward } from "../../models/PlayRewardedVideo";
 import { ggInitialize } from "../../models/SdkInitialize.js";
 import { CleverSdk } from "../../CleverSdk";
 import { TRANSSION_ADSDK_SCRIPT_URL } from "./constants.js";
 
 interface H5Sdk {
-    init: (
-        appKey: string,
-        top: string,
-        left: string,
-        bottom: string,
-        right: string,
-        options: any,
-    ) => void;
+    init: (appKey: string, top: string, left: string, bottom: string, right: string, options: any) => void;
     adConfig: (config: any) => void;
     adBreak: (config: any) => void;
     athenaSend: (event: string, ...params: any[]) => void;
@@ -45,8 +35,7 @@ export class AhagameSdk extends CleverSdk {
                 if (window.h5sdk) {
                     const adsense: Record<string, unknown> = {
                         client: config.adSenseId || "",
-                        "data-ad-frequency-hint":
-                            config.adFrequencyHint || "45s",
+                        "data-ad-frequency-hint": config.adFrequencyHint || "45s",
                         "data-ad-channel": config.adChannel || "",
                         pauseCallback: config.pauseCallback || (() => {}),
                         resumeCallback: config.resumeCallback || (() => {}),
@@ -71,14 +60,7 @@ export class AhagameSdk extends CleverSdk {
                         adsense,
                     };
 
-                    window.h5sdk.init(
-                        config.appKey || "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        options,
-                    );
+                    window.h5sdk.init(config.appKey || "", "", "", "", "", options);
                     try {
                         window.h5sdk.gameLoadingCompleted?.();
                     } catch {
@@ -230,10 +212,7 @@ export class AhagameSdk extends CleverSdk {
     }
 
     // Athena埋点上报
-    public async reportEvent(
-        id: string,
-        data: Record<string, any>,
-    ): Promise<boolean> {
+    public async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
         try {
             // @ts-ignore
             if (window.h5sdk && window.h5sdk.athenaSend) {

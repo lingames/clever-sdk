@@ -1,8 +1,5 @@
 //* 谷歌平台 */
-import {
-    ggCreateRewardedVideoAd,
-    VideoReward,
-} from "../models/PlayRewardedVideo";
+import { ggCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
 import { ggInitialize } from "../models/SdkInitialize.js";
 import { CleverSdk } from "../CleverSdk";
 

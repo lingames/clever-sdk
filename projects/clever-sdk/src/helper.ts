@@ -2,13 +2,10 @@ import sha256 from "jssha";
 
 export function generateRandomString(length: number): string {
     let result = "";
-    const characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
-        result += characters.charAt(
-            Math.floor(Math.random() * charactersLength),
-        );
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
 }
@@ -34,11 +31,7 @@ export function build_sdk_head(key: string, req_body: string): any {
     return headers;
 }
 
-export function build_sdk_req(
-    game_id: string,
-    key: string,
-    code: string,
-): [string, Map<string, string>] {
+export function build_sdk_req(game_id: string, key: string, code: string): [string, Map<string, string>] {
     const req_body = JSON.stringify({
         game_id: game_id,
         session_id: code,
@@ -56,12 +49,7 @@ const get_ts = () => {
     return unixTimestamp;
 };
 
-export function http_request(
-    method: string,
-    url: string,
-    heads: Map<string, string>,
-    body: string,
-) {
+export function http_request(method: string, url: string, heads: Map<string, string>, body: string) {
     let xhr = new XMLHttpRequest();
 
     xhr.open(method, url);
