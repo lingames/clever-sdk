@@ -6,14 +6,14 @@ import { LoginData } from "../models/LoginData.js";
 import { ksShareAppMessage } from "../models/ShareAppMessage";
 import { AddShortcut } from "../models/AddShortcut";
 import { ksNavigateToScene } from "../models/NavigateToScene";
-import { EventEndPoint, LoginEndPoint } from "../models";
+import { EventEndPoint, LoginEndPoint, ReportResult } from "../models";
 
 const ks = (globalThis as any).ks;
 
 export class KuaiShouSdk extends CleverSdk {
     protected bannerAd: any = null;
     protected videoAd: any = null;
-    private _lastVideoAdUnitId: string = '';
+    private _lastVideoAdUnitId: string = "";
 
     async initialize(config: ksInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
@@ -196,8 +196,8 @@ export class KuaiShouSdk extends CleverSdk {
         return super.checkSliderBarIsAvailable();
     }
 
-    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
-        return ks.request({
+    async reportEvent(id: string, custom: Record<string, any>): Promise<ReportResult> {
+        const res = ks.request({
             url: EventEndPoint,
             method: "POST",
             data: {
@@ -209,5 +209,6 @@ export class KuaiShouSdk extends CleverSdk {
                 custom: custom,
             },
         });
+        return { success: true };
     }
 }

@@ -3,7 +3,7 @@ import { VideoReward } from "../models/PlayRewardedVideo.js";
 import { minigameInitialize } from "../models/SdkInitialize.js";
 import { minigameShareAppMessage } from "../models/ShareAppMessage.js";
 import { LoginData } from "../models/LoginData.js";
-import { EventEndPoint, LoginEndPoint } from "../models/index.js";
+import { EventEndPoint, LoginEndPoint, ReportResult } from "../models/index.js";
 
 /** 微游SDK全局对象 */
 export declare const minigame: any;
@@ -235,10 +235,10 @@ export class MiniGameSDK extends CleverSdk {
     /**
      * 数据打点上报
      */
-    async reportEvent(eventName: string, custom: Record<string, any>): Promise<boolean> {
+    async reportEvent(eventName: string, custom: Record<string, any>): Promise<ReportResult> {
         if (!this.isInited) {
             console.log("===> minigame not inited");
-            return false;
+            return { success: false };
         }
 
         // 优先使用微游自有统计
@@ -260,10 +260,10 @@ export class MiniGameSDK extends CleverSdk {
                     custom: custom,
                 }),
             });
-            return response.ok;
+            return { success: response.ok };
         } catch (error) {
             console.error("minigame reportEvent error: ", error);
-            return false;
+            return { success: false };
         }
     }
 

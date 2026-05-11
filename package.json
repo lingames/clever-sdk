@@ -1,29 +1,29 @@
 {
-  "name": "clever-mono-repo",
-  "version": "1.0.0",
-  "description": "Monorepo for Clever SDK and Clever Test projects",
-  "private": true,
-  "dependencies": {
-    "@lingames/clever-sdk": "workspace:*"
-  },
-  "workspaces": [
-    "projects/*"
-  ],
-  "scripts": {
-    "format": "biome format --write projects",
-    "format:check": "biome check projects",
-    "cocos:clean-cache": "bash scripts/clean-cocos-cache.sh"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1"
-  },
-  "packageManager": "pnpm@10.33.1",
-  "creator": {
-    "version": "3.8.7"
-  },
-  "uuid": "08260130-74b1-499e-b391-ae20e43905dd"
+    "name": "clever-mono-repo",
+    "version": "1.0.0",
+    "description": "Monorepo for Clever SDK and Clever Test projects",
+    "private": true,
+    "dependencies": {
+        "@lingames/clever-sdk": "workspace:*"
+    },
+    "workspaces": [
+        "projects/*"
+    ],
+    "scripts": {
+        "format": "biome format --write .",
+        "format:check": "biome check .",
+        "cocos:clean-cache": "bash scripts/clean-cocos-cache.sh"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.5.1",
+        "ts-loader": "^9.6.2",
+        "typescript": "^6.0.3",
+        "webpack": "^5.108.1",
+        "webpack-cli": "^7.1.0"
+    },
+    "packageManager": "pnpm@10.33.1",
+    "creator": {
+        "version": "3.8.7"
+    },
+    "uuid": "08260130-74b1-499e-b391-ae20e43905dd"
 }

@@ -6,17 +6,59 @@ import { ttInitialize } from "../models/SdkInitialize";
 import { ttAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
 import { ttShareAppMessage } from "../models/ShareAppMessage";
-import { EventEndPoint, LoginEndPoint, CheckSceneResult } from "../models";
-import { CreateNativeAd } from "../models/CreateNativeAd";
+import {
+    CheckSceneResult,
+    CheckShortcutResult,
+    EventEndPoint,
+    EventReportPayload,
+    LoginEndPoint,
+    ReportResult,
+    TiktokEventParams,
+    TiktokGameEvent,
+} from "../models";
 
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
 
+/** TTMinis.game.request 在 DevTool 中多为 callback 风格，兼容 Promise 与 success/fail */
+function ttMinisRequest(options: Record<string, unknown>): Promise<any> {
+    return new Promise((resolve, reject) => {
+        if (!TTMinis?.game || typeof TTMinis.game.request !== "function") {
+            reject(new Error("TTMinis.game.request unavailable"));
+            return;
+        }
+        try {
+            const ret = TTMinis.game.request({
+                ...options,
+                success: (res: unknown) => resolve(res),
+                fail: (err: unknown) => reject(err),
+            });
+            if (ret && typeof ret.then === "function") {
+                ret.then(resolve).catch(reject);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 export class TiktokSdk extends CleverSdk {
-    protected videoAd: any = null;
     protected bannerAd: any = null;
     protected interstitialAd: any = null;
-    private _lastVideoAdUnitId: string = '';
+
+    /**
+     * TiktokGameEvent → TikTok 原生事件名映射
+     *
+     * TikTok 平台要求通过 TTMinis.game.reportEvent 回传中间事件，
+     * eventName 需使用平台约定的标准事件名。
+     */
+    private static readonly EVENT_NAME_MAP: Record<TiktokGameEvent, string | null> = {
+        [TiktokGameEvent.LOADING_COMPLETE]: "loading_complete",
+        [TiktokGameEvent.COMPLETE_SECTION]: "complete_section",
+        [TiktokGameEvent.GAIN_CREDITS]: "gain_credits",
+        [TiktokGameEvent.USER_LEAVE]: "user_leave",
+        [TiktokGameEvent.CUSTOM]: null,
+    };
 
     async initialize(config: ttInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
@@ -36,12 +78,11 @@ export class TiktokSdk extends CleverSdk {
                             login_code: res.code,
                         };
                         // https://developers.tiktok.com/doc/mini-games-sdk-login?enter_method=left_navigation
-                        TTMinis.game
-                            .request({
-                                url: this.sdk_login_url,
-                                method: "POST",
-                                data: body,
-                            })
+                        ttMinisRequest({
+                            url: this.sdk_login_url,
+                            method: "POST",
+                            data: body,
+                        })
                             .then((fine: any) => {
                                 this.session_key = fine.data.session_key;
                                 resolve(fine.data);
@@ -84,12 +125,11 @@ export class TiktokSdk extends CleverSdk {
                             platform: this.platform,
                             login_code: res.code,
                         };
-                        TTMinis.game
-                            .request({
-                                url: this.sdk_login_url,
-                                method: "POST",
-                                data: body,
-                            })
+                        ttMinisRequest({
+                            url: this.sdk_login_url,
+                            method: "POST",
+                            data: body,
+                        })
                             .then((fine: any) => {
                                 this.session_key = fine.data.session_key;
                                 resolve(fine.data);
@@ -113,17 +153,11 @@ export class TiktokSdk extends CleverSdk {
 
     // https://developers.tiktok.com/doc/mini-games-sdk-iaa?enter_method=left_navigation
     playRewardedVideo(config: ttCreateRewardedVideoAd): Promise<VideoReward> {
-        const adUnitId = config.ttUnitId || config.adUnitId;
-        // 检查广告位 ID 是否变化，如果变化则重新创建广告实例
-        if (this.videoAd == null || this._lastVideoAdUnitId !== adUnitId) {
-            console.log("创建 TikTok 激励视频广告");
-            this.videoAd = TTMinis.game.createRewardedVideoAd({
-                adUnitId: adUnitId,
-            });
-            this._lastVideoAdUnitId = adUnitId;
-        }
+        const videoAd = TTMinis.game.createRewardedVideoAd({
+            adUnitId: config.ttUnitId || config.adUnitId,
+        });
         return new Promise((resolve, reject) => {
-            this.videoAd.onClose((res: any) => {
+            videoAd.onClose((res: any) => {
                 if (res && res.isEnded) {
                     resolve({
                         isEnded: true,
@@ -136,7 +170,7 @@ export class TiktokSdk extends CleverSdk {
                     });
                 }
             });
-            this.videoAd.show().catch((error: any) => {
+            videoAd.show().catch((error: any) => {
                 console.log(`TikTok 播放异常 ${JSON.stringify(error)}`);
                 reject(error);
             });
@@ -202,11 +236,9 @@ export class TiktokSdk extends CleverSdk {
 
     // https://developers.tiktok.com/doc/mini-games-sdk-iaa?enter_method=left_navigation
     async showInterstitialAd(adInfo: ttCreateInterstitialAd): Promise<VideoReward> {
-        if (this.interstitialAd == null) {
-            this.interstitialAd = TTMinis.game.createInterstitialAd({
-                adUnitId: adInfo.ttUnitId || adInfo.adUnitId,
-            });
-        }
+        this.interstitialAd = TTMinis.game.createInterstitialAd({
+            adUnitId: adInfo.ttUnitId || adInfo.adUnitId,
+        });
 
         return new Promise((resolve) => {
             this.interstitialAd
@@ -248,12 +280,8 @@ export class TiktokSdk extends CleverSdk {
         return super.addCommonUse();
     }
 
+    // https://developers.tiktok.com/doc/home-screen-shortcut?enter_method=left_navigation
     async addShortcut(options: ttAddShortcut): Promise<boolean> {
-        if (!TTMinis.game || typeof TTMinis.game.addShortcut !== "function") {
-            console.warn("TikTok 平台不支持 addShortcut API");
-            return false;
-        }
-
         return new Promise((resolve, reject) => {
             TTMinis.game.addShortcut({
                 ...options,
@@ -267,27 +295,19 @@ export class TiktokSdk extends CleverSdk {
         });
     }
 
-    async checkShortcut(): Promise<any> {
-        return this.getShortcutMissionReward();
-    }
-
-    async getShortcutMissionReward(): Promise<any> {
-        if (!TTMinis || typeof TTMinis.getShortcutMissionReward !== "function") {
-            console.warn("TikTok 平台不支持 getShortcutMissionReward API");
-            return { isSupport: false, canReceiveReward: false };
-        }
-
-        return new Promise((resolve) => {
-            TTMinis.getShortcutMissionReward({
+    // https://developers.tiktok.com/doc/home-screen-shortcut?enter_method=left_navigation
+    async checkShortcut(): Promise<CheckShortcutResult> {
+        return new Promise((resolve, reject) => {
+            TTMinis.game.getShortcutMissionReward({
                 success(res: any) {
                     resolve({
                         isSupport: true,
-                        canReceiveReward: res.canReceiveReward,
+                        exist: res.canReceiveReward,
+                        needUpdate: false,
                     });
                 },
                 fail(fail: any) {
-                    console.warn("获取桌面快捷方式奖励失败: ", fail);
-                    resolve({ isSupport: true, canReceiveReward: false });
+                    reject(fail);
                 },
             });
         });
@@ -341,8 +361,39 @@ export class TiktokSdk extends CleverSdk {
         return TTMinis.game.canIUse(schema);
     }
 
-    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
-        await TTMinis.game.request({
+    /**
+     * 上报事件
+     *
+     * - 若 data 含 event_type，且为已知 TiktokGameEvent（非 CUSTOM），编译期强制校验必填参数
+     * - 若 data 不含 event_type 或 event_type = CUSTOM，走宽松 Record<string, any>
+     *
+     * 同时通过两条通道上报：
+     * 1. HTTP POST 到通用事件端点（用于游戏后台数据分析）
+     * 2. 通过 TTMinis.game.reportEvent 分发到 TikTok 广告模型
+     *
+     * @param id - 游戏内部事件标识，由游戏自定义
+     * @param data - 事件数据
+     */
+    async reportEvent<T extends TiktokGameEvent = TiktokGameEvent.CUSTOM>(
+        id: string,
+        data: T extends TiktokGameEvent.CUSTOM ? Record<string, any> : TiktokEventParams<T> & { event_type: T },
+    ): Promise<ReportResult> {
+        const { event_type, ...params } = data;
+        const tiktokEvent = (event_type ?? TiktokGameEvent.CUSTOM) as TiktokGameEvent;
+        const nativeEventName = TiktokSdk.EVENT_NAME_MAP[tiktokEvent];
+
+        if (nativeEventName && this.canIUse("reportEvent")) {
+            TTMinis.game.reportEvent({
+                eventName: nativeEventName,
+                params: params,
+                success: () => {},
+                fail: (err: any) => {
+                    console.warn(`TikTok 中间事件回传失败: ${nativeEventName}`, err);
+                },
+            });
+        }
+
+        await ttMinisRequest({
             url: EventEndPoint,
             method: "POST",
             data: {
@@ -351,9 +402,9 @@ export class TiktokSdk extends CleverSdk {
                 channel_id: this.channel_id,
                 version_id: this.version_id,
                 event_id: id,
-                custom: custom,
-            },
+                custom: data,
+            } satisfies EventReportPayload,
         });
-        return true;
+        return { success: true };
     }
 }

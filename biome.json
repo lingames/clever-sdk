@@ -1,15 +1,15 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 4,
-    "lineWidth": 144
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true
+    "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 144
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true
+        }
     }
-  }
 }

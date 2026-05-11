@@ -204,10 +204,73 @@ const supported = sdk.canIUse("game.login");
 await sdk.addCommonUse();
 ```
 
-## 事件上报
+## 8. 中间事件回传（TikTok 小游戏）
 
 TikTok 适配器重写了 `reportEvent`，直接通过 `TTMinis.game.request` 发送事件到上报服务器：
 
 ```ts
 await sdk.reportEvent("event_id", { key: "value" });
 ```
+
+TikTok 平台支持回传小游戏中间事件，帮助广告模型更好地理解用户行为，提升广告投放效果。
+
+根据 TikTok 官方文档，回传有效的中间事件可使广告支出回报率（ROAS）提升 10-20%。
+
+### 8.1 支持的标准事件
+
+| 事件类型 | 枚举值 | 说明 |
+|----------|--------|------|
+| 游戏加载完成 | `TiktokGameEvent.LOADING_COMPLETE` | 玩家完成资源加载或进入首页 |
+| 完成关卡 | `TiktokGameEvent.COMPLETE_SECTION` | 玩家完成指定关卡或玩法 |
+| 获取奖励 | `TiktokGameEvent.GAIN_CREDITS` | 玩家获取游戏内虚拟货币/积分 |
+| 玩家离开游戏 | `TiktokGameEvent.USER_LEAVE` | 玩家主动或被动退出 |
+
+### 8.2 上报方式
+
+通过 `reportEvent` 方法上报，在 `data` 中传入 `event_type` 字段指定标准化事件类型：
+
+```ts
+import { TiktokGameEvent } from "@lingames/clever-sdk/models";
+
+// 游戏加载完成
+(window as any).mySdk.reportEvent("event-xxx", {
+    event_type: TiktokGameEvent.LOADING_COMPLETE,
+    complete_time: Date.now(),
+});
+
+// 完成关卡
+(window as any).mySdk.reportEvent("event-xxx", {
+    event_type: TiktokGameEvent.COMPLETE_SECTION,
+    section_type: 0,          // 0=主线关卡
+    main_section_no: 5,       // 主线关卡序号
+    section_name: "沙漠遗迹",   // 关卡名称（可选）
+    section_id: 105,          // 关卡 ID（可选）
+    section_sum: 12,          // 已完成关卡总数（可选）
+    section_value: 0,         // 0=高价值（可选）
+});
+
+// 获取奖励
+(window as any).mySdk.reportEvent("event-xxx", {
+    event_type: TiktokGameEvent.GAIN_CREDITS,
+    value: 500,
+    token_type: 0,            // 0=一级货币（付费），1=二级货币
+    token_id: "diamond",
+});
+
+// 玩家离开游戏
+(window as any).mySdk.reportEvent("event-xxx", {
+    event_type: TiktokGameEvent.USER_LEAVE,
+    leave_time: Date.now(),
+    leave_reason: 1,          // 1=主动退出，2=kill App，见文档
+});
+```
+
+### 8.3 重要说明
+
+- **双通道上报**：每个 `reportEvent` 调用同时走两条通道：
+  1. HTTP POST 到通用事件端点（游戏后台数据分析）
+  2. TikTok 原生 `TTMinis.game.reportEvent` API（广告模型优化）
+- **`id` vs `event_type`**：`id` 是游戏内部自定义的事件标识（如 `"event-xxx"`），`event_type` 是平台标准事件类型。两者互不冲突，各司其职。
+- **向后兼容**：不传 `event_type` 的事件仍然正常工作，仅走 HTTP 通道。
+- **版本要求**：TikTok 原生回传需要客户端 40.9.0 及以上版本，SDK 会自动检测兼容性。
+- **类型安全**：根据传入的 `event_type`，TypeScript 会自动校验对应事件的必填参数，编译期即可发现参数缺失。

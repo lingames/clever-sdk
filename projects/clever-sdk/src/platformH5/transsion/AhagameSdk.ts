@@ -3,6 +3,7 @@ import { ggCreateRewardedVideoAd, VideoReward } from "../../models/PlayRewardedV
 import { ggInitialize } from "../../models/SdkInitialize.js";
 import { CleverSdk } from "../../CleverSdk";
 import { TRANSSION_ADSDK_SCRIPT_URL } from "./constants.js";
+import { ReportResult } from "../../models";
 
 interface H5Sdk {
     init: (appKey: string, top: string, left: string, bottom: string, right: string, options: any) => void;
@@ -17,6 +18,10 @@ declare global {
     interface Window {
         h5sdk?: H5Sdk;
     }
+}
+
+function values(obj: Record<string, any>): any[] {
+    return Object.keys(obj).map((k) => obj[k]);
 }
 
 // @ts-ignore
@@ -212,12 +217,12 @@ export class AhagameSdk extends CleverSdk {
     }
 
     // Athena埋点上报
-    public async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
+    public async reportEvent(id: string, data: Record<string, any>): Promise<ReportResult> {
         try {
             // @ts-ignore
             if (window.h5sdk && window.h5sdk.athenaSend) {
                 // 构建参数
-                const params = Object.values(data);
+                const params = values(data);
                 if (params.length === 0) {
                     window.h5sdk.athenaSend(id);
                 } else if (params.length === 1) {
@@ -225,77 +230,77 @@ export class AhagameSdk extends CleverSdk {
                 } else {
                     window.h5sdk.athenaSend(id, params[0], params[1]);
                 }
-                return true;
+                return { success: true };
             }
-            return false;
+            return { success: false };
         } catch (error) {
             console.error("Athena埋点上报失败:", error);
-            return false;
+            return { success: false };
         }
     }
 
     // 游戏开始事件
-    public async reportGameStart(gameName: string): Promise<boolean> {
+    public async reportGameStart(gameName: string): Promise<ReportResult> {
         return this.reportEvent("game_start", { title: gameName });
     }
 
     // 加载开始事件
-    public async reportLoadingBegin(): Promise<boolean> {
+    public async reportLoadingBegin(): Promise<ReportResult> {
         return this.reportEvent("loading_begin", {});
     }
 
     // 加载结束事件
-    public async reportLoadingEnd(): Promise<boolean> {
+    public async reportLoadingEnd(): Promise<ReportResult> {
         return this.reportEvent("loading_end", {});
     }
 
     // 谷歌JS加载开始事件
-    public async reportLoadAdsbygoogle(): Promise<boolean> {
+    public async reportLoadAdsbygoogle(): Promise<ReportResult> {
         return this.reportEvent("load_adsbygoogle", {});
     }
 
     // 谷歌JS加载完毕事件
-    public async reportLoadedAdsbygoogle(): Promise<boolean> {
+    public async reportLoadedAdsbygoogle(): Promise<ReportResult> {
         return this.reportEvent("loaded_adsbygoogle", {});
     }
 
     // 转屏提示页面事件
-    public async reportTurnScreen(): Promise<boolean> {
+    public async reportTurnScreen(): Promise<ReportResult> {
         return this.reportEvent("turn_screen", {});
     }
 
     // 横屏动作事件
-    public async reportHorizontal(): Promise<boolean> {
+    public async reportHorizontal(): Promise<ReportResult> {
         return this.reportEvent("horizontal", {});
     }
 
     // 游戏主页面事件
-    public async reportGamePage(): Promise<boolean> {
+    public async reportGamePage(): Promise<ReportResult> {
         return this.reportEvent("game_page", {});
     }
 
     // 关卡开始事件
-    public async reportLevelBegin(level: number): Promise<boolean> {
+    public async reportLevelBegin(level: number): Promise<ReportResult> {
         return this.reportEvent("level_begin", { level });
     }
 
     // 关卡结束事件
-    public async reportLevelEnd(status: "Fail" | "Pass"): Promise<boolean> {
+    public async reportLevelEnd(status: "Fail" | "Pass"): Promise<ReportResult> {
         return this.reportEvent("level_end", { status });
     }
 
     // 关卡奖励事件
-    public async reportLevelReward(hasAdOption: number): Promise<boolean> {
+    public async reportLevelReward(hasAdOption: number): Promise<ReportResult> {
         return this.reportEvent("level_reward", { hasAdOption });
     }
 
     // 过关点击事件
-    public async reportLevelNext(): Promise<boolean> {
+    public async reportLevelNext(): Promise<ReportResult> {
         return this.reportEvent("level_next", {});
     }
 
     // 激励点击事件
-    public async reportRewardClick(scene: string): Promise<boolean> {
+    public async reportRewardClick(scene: string): Promise<ReportResult> {
         return this.reportEvent("reward_click", { scene });
     }
 }

@@ -4,15 +4,15 @@ import { dyCreateBannerAd } from "../models/CreateBannerAd";
 import { dyInitialize } from "../models/SdkInitialize";
 import { dyAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
-import { ShareAppMessage, dyShareAppMessage } from "../models/ShareAppMessage";
-import { LoginEndPoint, CheckSceneResult } from "../models";
+import { dyShareAppMessage } from "../models/ShareAppMessage";
+import { CheckSceneResult, CheckShortcutResult, LoginEndPoint, ReportResult } from "../models";
 
 const tt = (globalThis as any).tt;
 
 export class DouyinSdk extends CleverSdk {
     protected videoAd: any = null;
     protected bannerAd: any = null;
-    private _lastVideoAdUnitId: string = '';
+    private _lastVideoAdUnitId: string = "";
 
     async initialize(config: dyInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
@@ -184,7 +184,7 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
-    async checkShortcut(): Promise<any> {
+    async checkShortcut(): Promise<CheckShortcutResult> {
         // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/shortcut/check-shortcut
         return new Promise((resolve, reject) => {
             tt.checkShortcut({
@@ -202,8 +202,8 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
-    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
-        return tt.request({
+    async reportEvent(id: string, custom: Record<string, any>): Promise<ReportResult> {
+        const res = tt.request({
             url: "https://api.salesagent.cc/game-logger/event",
             method: "POST",
             data: {
@@ -215,5 +215,6 @@ export class DouyinSdk extends CleverSdk {
                 custom: custom,
             },
         });
+        return { success: true };
     }
 }

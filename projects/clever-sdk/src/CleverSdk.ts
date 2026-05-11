@@ -10,6 +10,7 @@ import { ShareAppMessage } from "./models/ShareAppMessage";
 import { NavigateToScene } from "./models/NavigateToScene";
 import { AdvertiseStage } from "./models/AdvertiseStage";
 import { ReportContext } from "./models/ReportContext";
+import { CheckShortcutResult, ReportResult } from "./models/index";
 
 export class CleverSdk {
     // 平台名称
@@ -132,10 +133,10 @@ export class CleverSdk {
     /**
      * 检查是否已经添加到了桌面
      */
-    public async checkShortcut(): Promise<any> {
+    public async checkShortcut(): Promise<CheckShortcutResult> {
         return Promise.resolve({
             isSupport: false,
-            exist: true,
+            exist: false,
             needUpdate: false,
         });
     }
@@ -182,7 +183,7 @@ export class CleverSdk {
         }
     }
 
-    public async reportAdvertise(id: string, stage: AdvertiseStage, data: Record<string, any>): Promise<boolean> {
+    public async reportAdvertise(id: string, stage: AdvertiseStage, data: Record<string, any>): Promise<ReportResult> {
         if (stage == AdvertiseStage.Expose) {
             data.status = 0;
         } else if (stage == AdvertiseStage.Click) {
@@ -197,7 +198,14 @@ export class CleverSdk {
         return await this.reportEvent(id, data);
     }
 
-    public async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
-        return Promise.resolve(false);
+    /**
+     * 上报事件
+     *
+     * @param id - 游戏内部事件标识，由游戏自定义，用于后台数据分析
+     * @param data - 事件数据。平台子类提供编译期类型安全的重载签名
+     * @returns 是否上报成功
+     */
+    public async reportEvent(id: string, data: Record<string, any>): Promise<ReportResult> {
+        return Promise.resolve({ success: false });
     }
 }
