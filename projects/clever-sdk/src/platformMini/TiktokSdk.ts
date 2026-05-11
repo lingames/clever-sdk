@@ -13,10 +13,8 @@ import { CreateNativeAd } from "../models/CreateNativeAd";
 const TTMinis = (globalThis as any).TTMinis;
 
 export class TiktokSdk extends CleverSdk {
-    protected videoAd: any = null;
     protected bannerAd: any = null;
     protected interstitialAd: any = null;
-    private _lastVideoAdUnitId: string = '';
 
     async initialize(config: ttInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
@@ -114,16 +112,11 @@ export class TiktokSdk extends CleverSdk {
     // https://developers.tiktok.com/doc/mini-games-sdk-iaa?enter_method=left_navigation
     playRewardedVideo(config: ttCreateRewardedVideoAd): Promise<VideoReward> {
         const adUnitId = config.ttUnitId || config.adUnitId;
-        // 检查广告位 ID 是否变化，如果变化则重新创建广告实例
-        if (this.videoAd == null || this._lastVideoAdUnitId !== adUnitId) {
-            console.log("创建 TikTok 激励视频广告");
-            this.videoAd = TTMinis.game.createRewardedVideoAd({
-                adUnitId: adUnitId,
-            });
-            this._lastVideoAdUnitId = adUnitId;
-        }
+        const videoAd = TTMinis.game.createRewardedVideoAd({
+            adUnitId: adUnitId,
+        });
         return new Promise((resolve, reject) => {
-            this.videoAd.onClose((res: any) => {
+            videoAd.onClose((res: any) => {
                 if (res && res.isEnded) {
                     resolve({
                         isEnded: true,
@@ -136,7 +129,7 @@ export class TiktokSdk extends CleverSdk {
                     });
                 }
             });
-            this.videoAd.show().catch((error: any) => {
+            videoAd.show().catch((error: any) => {
                 console.log(`TikTok 播放异常 ${JSON.stringify(error)}`);
                 reject(error);
             });
