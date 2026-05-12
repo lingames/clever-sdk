@@ -262,8 +262,8 @@ export class TiktokSdk extends CleverSdk {
                 success(res: any) {
                     resolve({
                         isSupport: true,
-                        exist: true,
-                        needUpdate: res.canReceiveReward,
+                        exist: res.canReceiveReward,
+                        needUpdate: false,
                     });
                 },
                 fail(fail: any) {

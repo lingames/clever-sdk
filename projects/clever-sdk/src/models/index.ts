@@ -1,10 +1,45 @@
-import { SdkInitialize } from "./SdkInitialize.js";
+import {SdkInitialize} from "./SdkInitialize.js";
 
 export type DynamicSdkConfig = MyConfig & SdkInitialize;
-export { PlayRewardedVideo, VideoReward } from "./PlayRewardedVideo";
-export { CreateInterstitialAd } from "./CreateInterstitialAd";
-export { EventData } from "./events";
-export { AdvertiseStage } from "./AdvertiseStage";
+export {PlayRewardedVideo, VideoReward} from "./PlayRewardedVideo";
+export {CreateInterstitialAd} from "./CreateInterstitialAd";
+export {EventData} from "./events";
+export {AdvertiseStage} from "./AdvertiseStage";
+
+/**
+ * 检查场景入口状态的返回结果
+ */
+export interface CheckSceneResult {
+    /**
+     * 平台是否支持场景入口功能
+     */
+    isSupport: boolean;
+    /**
+     * 当前是否在侧边栏场景
+     */
+    isScene: boolean;
+}
+
+/**
+ * 检查桌面快捷方式状态的返回结果
+ *
+ * @see https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/shortcut/check-shortcut
+ */
+export interface CheckShortcutResult {
+    /**
+     * 平台是否支持添加到桌面功能
+     */
+    isSupport: boolean;
+    /**
+     * 是否已添加到桌面
+     */
+    exist: boolean;
+    /**
+     * 是否已过期需要更新
+     */
+    needUpdate: boolean;
+}
+
 /**
  * SDK 配置参数
  */
@@ -69,37 +104,3 @@ export type MyConfig = {
 
 export const EventEndPoint = "https://api.salesagent.cc/game-logger/event";
 export const LoginEndPoint = "https://api.salesagent.cc/game-analyzer/player/login";
-
-/**
- * 检查场景入口状态的返回结果
- */
-export interface CheckSceneResult {
-    /**
-     * 平台是否支持场景入口功能
-     */
-    isSupport: boolean;
-    /**
-     * 当前是否在侧边栏场景
-     */
-    isScene: boolean;
-}
-
-/**
- * 检查桌面快捷方式状态的返回结果
- * 
- * @see https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/shortcut/check-shortcut
- */
-export interface CheckShortcutResult {
-    /**
-     * 平台是否支持添加到桌面功能
-     */
-    isSupport: boolean;
-    /**
-     * 是否已添加到桌面
-     */
-    exist: boolean;
-    /**
-     * 是否已过期需要更新
-     */
-    needUpdate: boolean;
-}
