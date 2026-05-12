@@ -257,7 +257,7 @@ export class TiktokSdk extends CleverSdk {
 
     // https://developers.tiktok.com/doc/home-screen-shortcut?enter_method=left_navigation
     async checkShortcut(): Promise<CheckShortcutResult> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             TTMinis.game.getShortcutMissionReward({
                 success(res: any) {
                     resolve({
@@ -267,8 +267,7 @@ export class TiktokSdk extends CleverSdk {
                     });
                 },
                 fail(fail: any) {
-                    console.warn("获取桌面快捷方式奖励失败: ", fail);
-                    resolve({isSupport: true, exist: true, needUpdate: false});
+                    reject(fail);
                 },
             });
         });
