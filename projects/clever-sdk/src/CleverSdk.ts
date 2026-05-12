@@ -136,7 +136,7 @@ export class CleverSdk {
     public async checkShortcut(): Promise<CheckShortcutResult> {
         return Promise.resolve({
             isSupport: false,
-            exist: true,
+            exist: false,
             needUpdate: false,
         });
     }
