@@ -1,13 +1,12 @@
-import { CleverSdk } from "../CleverSdk.js";
-import { ttCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
-import { ttCreateBannerAd } from "../models/CreateBannerAd";
-import { ttCreateInterstitialAd } from "../models/CreateInterstitialAd";
-import { ttInitialize } from "../models/SdkInitialize";
-import { ttAddShortcut } from "../models/AddShortcut";
-import { LoginData } from "../models/LoginData";
-import { ttShareAppMessage } from "../models/ShareAppMessage";
-import { EventEndPoint, LoginEndPoint, CheckSceneResult } from "../models";
-import { CreateNativeAd } from "../models/CreateNativeAd";
+import {CleverSdk} from "../CleverSdk.js";
+import {ttCreateRewardedVideoAd, VideoReward} from "../models/PlayRewardedVideo";
+import {ttCreateBannerAd} from "../models/CreateBannerAd";
+import {ttCreateInterstitialAd} from "../models/CreateInterstitialAd";
+import {ttInitialize} from "../models/SdkInitialize";
+import {ttAddShortcut} from "../models/AddShortcut";
+import {LoginData} from "../models/LoginData";
+import {ttShareAppMessage} from "../models/ShareAppMessage";
+import {CheckSceneResult, EventEndPoint, LoginEndPoint} from "../models";
 
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
@@ -242,11 +241,6 @@ export class TiktokSdk extends CleverSdk {
     }
 
     async addShortcut(options: ttAddShortcut): Promise<boolean> {
-        if (!TTMinis.game || typeof TTMinis.game.addShortcut !== "function") {
-            console.warn("TikTok 平台不支持 addShortcut API");
-            return false;
-        }
-
         return new Promise((resolve, reject) => {
             TTMinis.game.addShortcut({
                 ...options,
@@ -261,17 +255,8 @@ export class TiktokSdk extends CleverSdk {
     }
 
     async checkShortcut(): Promise<any> {
-        return this.getShortcutMissionReward();
-    }
-
-    async getShortcutMissionReward(): Promise<any> {
-        if (!TTMinis || typeof TTMinis.getShortcutMissionReward !== "function") {
-            console.warn("TikTok 平台不支持 getShortcutMissionReward API");
-            return { isSupport: false, canReceiveReward: false };
-        }
-
         return new Promise((resolve) => {
-            TTMinis.getShortcutMissionReward({
+            TTMinis.game.getShortcutMissionReward({
                 success(res: any) {
                     resolve({
                         isSupport: true,
@@ -280,7 +265,7 @@ export class TiktokSdk extends CleverSdk {
                 },
                 fail(fail: any) {
                     console.warn("获取桌面快捷方式奖励失败: ", fail);
-                    resolve({ isSupport: true, canReceiveReward: false });
+                    resolve({isSupport: true, canReceiveReward: false});
                 },
             });
         });
@@ -308,7 +293,7 @@ export class TiktokSdk extends CleverSdk {
     async getEntranceMissionReward(): Promise<any> {
         if (!TTMinis.game || typeof TTMinis.game.getEntranceMissionReward !== "function") {
             console.warn("TikTok 平台不支持 getEntranceMissionReward API");
-            return { isSupport: false, canReceiveReward: false };
+            return {isSupport: false, canReceiveReward: false};
         }
 
         return new Promise((resolve) => {
@@ -321,7 +306,7 @@ export class TiktokSdk extends CleverSdk {
                 },
                 fail(fail: any) {
                     console.warn("获取入口任务奖励失败: ", fail);
-                    resolve({ isSupport: true, canReceiveReward: false });
+                    resolve({isSupport: true, canReceiveReward: false});
                 },
             });
         });
