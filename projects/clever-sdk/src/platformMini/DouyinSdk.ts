@@ -5,7 +5,7 @@ import { dyInitialize } from "../models/SdkInitialize";
 import { dyAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
 import { ShareAppMessage, dyShareAppMessage } from "../models/ShareAppMessage";
-import { LoginEndPoint, CheckSceneResult } from "../models";
+import { LoginEndPoint, CheckSceneResult, CheckShortcutResult } from "../models";
 
 const tt = (globalThis as any).tt;
 
@@ -184,7 +184,7 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
-    async checkShortcut(): Promise<any> {
+    async checkShortcut(): Promise<CheckShortcutResult> {
         // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/shortcut/check-shortcut
         return new Promise((resolve, reject) => {
             tt.checkShortcut({

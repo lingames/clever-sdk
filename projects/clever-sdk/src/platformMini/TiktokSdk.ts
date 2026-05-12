@@ -6,7 +6,7 @@ import {ttInitialize} from "../models/SdkInitialize";
 import {ttAddShortcut} from "../models/AddShortcut";
 import {LoginData} from "../models/LoginData";
 import {ttShareAppMessage} from "../models/ShareAppMessage";
-import {CheckSceneResult, EventEndPoint, LoginEndPoint} from "../models";
+import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint} from "../models";
 
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
@@ -240,6 +240,7 @@ export class TiktokSdk extends CleverSdk {
         return super.addCommonUse();
     }
 
+    // https://developers.tiktok.com/doc/home-screen-shortcut?enter_method=left_navigation
     async addShortcut(options: ttAddShortcut): Promise<boolean> {
         return new Promise((resolve, reject) => {
             TTMinis.game.addShortcut({
@@ -254,18 +255,20 @@ export class TiktokSdk extends CleverSdk {
         });
     }
 
-    async checkShortcut(): Promise<any> {
+    // https://developers.tiktok.com/doc/home-screen-shortcut?enter_method=left_navigation
+    async checkShortcut(): Promise<CheckShortcutResult> {
         return new Promise((resolve) => {
             TTMinis.game.getShortcutMissionReward({
                 success(res: any) {
                     resolve({
                         isSupport: true,
-                        canReceiveReward: res.canReceiveReward,
+                        exist: true,
+                        needUpdate: res.canReceiveReward,
                     });
                 },
                 fail(fail: any) {
                     console.warn("获取桌面快捷方式奖励失败: ", fail);
-                    resolve({isSupport: true, canReceiveReward: false});
+                    resolve({isSupport: true, exist: true, needUpdate: false});
                 },
             });
         });

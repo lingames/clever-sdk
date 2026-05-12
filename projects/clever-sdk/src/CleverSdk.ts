@@ -10,6 +10,7 @@ import { ShareAppMessage } from "./models/ShareAppMessage";
 import { NavigateToScene } from "./models/NavigateToScene";
 import { AdvertiseStage } from "./models/AdvertiseStage";
 import { ReportContext } from "./models/ReportContext";
+import { CheckShortcutResult } from "./models/index";
 
 export class CleverSdk {
     // 平台名称
@@ -132,7 +133,7 @@ export class CleverSdk {
     /**
      * 检查是否已经添加到了桌面
      */
-    public async checkShortcut(): Promise<any> {
+    public async checkShortcut(): Promise<CheckShortcutResult> {
         return Promise.resolve({
             isSupport: false,
             exist: true,

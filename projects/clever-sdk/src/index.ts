@@ -5,7 +5,9 @@ import { BilibiliSdk, DouyinSdk, HuaweiSdk, KuaiShouSdk, OppoSdk, WeChatSdk, Tik
 import { M4399Sdk } from "./platformNative";
 import { CleverSdk } from "./CleverSdk.js";
 import { AdSenseSdk, MiniGameSDK, MockSdk, AhagameSdk } from "./platformH5";
-import { DynamicSdkConfig } from "./models";
+import { DynamicSdkConfig, CheckShortcutResult } from "./models";
+
+export { CheckShortcutResult };
 
 export { CleverSdk };
 

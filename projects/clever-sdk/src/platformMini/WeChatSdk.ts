@@ -6,7 +6,7 @@ import { wxInitialize } from "../models/SdkInitialize";
 import { wxGetUserInfo, wxLoginData, wxUserInfoCallback } from "../models/LoginData";
 import { wxShareAppMessage } from "../models/ShareAppMessage";
 import { wxNavigateToScene } from "../models/NavigateToScene";
-import { LoginEndPoint } from "../models";
+import { LoginEndPoint, CheckShortcutResult } from "../models";
 
 // @ts-ignore
 const wx = (globalThis as any).wx;
@@ -142,8 +142,8 @@ export class WeChatSdk extends CleverSdk {
         return true;
     }
 
-    public async checkShortcut(): Promise<any> {
-        console.error("不支持checkShortcut");
+    public async checkShortcut(): Promise<CheckShortcutResult> {
+        console.error("微信不支持checkShortcut");
         return {
             isSupport: false,
             exist: true,
@@ -152,7 +152,7 @@ export class WeChatSdk extends CleverSdk {
     }
 
     public async checkScene(): Promise<any> {
-        console.error("不支持checkScene");
+        console.error("微信不支持checkScene");
         return {
             isSupport: false,
             isScene: false,
