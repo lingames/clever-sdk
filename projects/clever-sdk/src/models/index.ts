@@ -6,6 +6,14 @@ export {CreateInterstitialAd} from "./CreateInterstitialAd";
 export {EventData} from "./events";
 export {AdvertiseStage} from "./AdvertiseStage";
 export {StandardGameEvent} from "./GameEvent";
+export {
+    TiktokGameEvent,
+    LoadingCompleteParams,
+    CompleteSectionParams,
+    GainCreditsParams,
+    UserLeaveParams,
+} from "./TiktokGameEvent";
+export type {TiktokEventParams} from "./TiktokGameEvent";
 
 /**
  * 检查场景入口状态的返回结果

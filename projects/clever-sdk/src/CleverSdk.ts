@@ -10,7 +10,7 @@ import { ShareAppMessage } from "./models/ShareAppMessage";
 import { NavigateToScene } from "./models/NavigateToScene";
 import { AdvertiseStage } from "./models/AdvertiseStage";
 import { ReportContext } from "./models/ReportContext";
-import { CheckShortcutResult, StandardGameEvent } from "./models/index";
+import { CheckShortcutResult } from "./models/index";
 
 export class CleverSdk {
     // 平台名称
@@ -202,8 +202,9 @@ export class CleverSdk {
      * 上报事件
      *
      * @param id - 游戏内部事件标识，由游戏自定义，用于后台数据分析
-     * @param data - 事件数据，可通过 data.event_type 传入 {@link StandardGameEvent} 枚举值，
-     *               各平台子类会据此将事件同时分发到平台原生回传 API（如 TikTok 的 TTMinis.game.reportEvent）
+     * @param data - 事件数据。可包含 event_type 字段指定 TiktokGameEvent 枚举值，
+     *               各平台子类据此将事件分发到平台原生回传 API。
+     *               平台子类提供编译期类型安全的重载签名，校验必填参数。
      * @returns 是否上报成功
      */
     public async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {

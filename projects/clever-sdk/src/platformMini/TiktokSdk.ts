@@ -6,7 +6,7 @@ import {ttInitialize} from "../models/SdkInitialize";
 import {ttAddShortcut} from "../models/AddShortcut";
 import {LoginData} from "../models/LoginData";
 import {ttShareAppMessage} from "../models/ShareAppMessage";
-import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint, StandardGameEvent} from "../models";
+import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint, TiktokEventParams, TiktokGameEvent} from "../models";
 
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
@@ -16,16 +16,17 @@ export class TiktokSdk extends CleverSdk {
     protected interstitialAd: any = null;
 
     /**
-     * StandardGameEvent → TikTok 原生事件名映射
+     * TiktokGameEvent → TikTok 原生事件名映射
      *
      * TikTok 平台要求通过 TTMinis.game.reportEvent 回传中间事件，
      * eventName 需使用平台约定的标准事件名。
      */
-    private static readonly EVENT_NAME_MAP: Partial<Record<StandardGameEvent, string>> = {
-        [StandardGameEvent.LOADING_COMPLETE]: "loading_complete",
-        [StandardGameEvent.COMPLETE_SECTION]: "complete_section",
-        [StandardGameEvent.GAIN_CREDITS]: "gain_credits",
-        [StandardGameEvent.USER_LEAVE]: "user_leave",
+    private static readonly EVENT_NAME_MAP: Record<TiktokGameEvent, string | null> = {
+        [TiktokGameEvent.LOADING_COMPLETE]: "loading_complete",
+        [TiktokGameEvent.COMPLETE_SECTION]: "complete_section",
+        [TiktokGameEvent.GAIN_CREDITS]: "gain_credits",
+        [TiktokGameEvent.USER_LEAVE]: "user_leave",
+        [TiktokGameEvent.CUSTOM]: null,
     };
 
     async initialize(config: ttInitialize): Promise<boolean> {
@@ -335,19 +336,30 @@ export class TiktokSdk extends CleverSdk {
     }
 
     /**
-     * 上报事件
+     * 上报事件（宽松签名，向后兼容）
+     *
+     * @param id - 游戏内部事件标识
+     * @param data - 事件数据
+     */
+    reportEvent(id: string, data: Record<string, any>): Promise<boolean>;
+    /**
+     * 上报标准化 TikTok 中间事件
      *
      * 同时通过两条通道上报：
      * 1. HTTP POST 到通用事件端点（用于游戏后台数据分析）
-     * 2. 若 data.event_type 为已知的 StandardGameEvent，
-     *    额外通过 TTMinis.game.reportEvent 分发到 TikTok 广告模型
+     * 2. 通过 TTMinis.game.reportEvent 分发到 TikTok 广告模型
      *
      * @param id - 游戏内部事件标识，由游戏自定义
-     * @param data - 事件数据，可包含 event_type 字段指定标准化事件类型
+     * @param data - 事件数据，必须包含 event_type 及对应事件的必填参数
      */
+    reportEvent<T extends TiktokGameEvent>(
+        id: string,
+        data: TiktokEventParams<T> & { event_type: T }
+    ): Promise<boolean>;
     async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
         const {event_type, ...params} = data;
-        const nativeEventName = TiktokSdk.EVENT_NAME_MAP[event_type as StandardGameEvent];
+        const tiktokEvent = event_type as TiktokGameEvent;
+        const nativeEventName = TiktokSdk.EVENT_NAME_MAP[tiktokEvent];
 
         if (nativeEventName && this.canIUse("reportEvent")) {
             TTMinis.game.reportEvent({
