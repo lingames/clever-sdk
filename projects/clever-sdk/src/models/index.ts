@@ -5,6 +5,7 @@ export {PlayRewardedVideo, VideoReward} from "./PlayRewardedVideo";
 export {CreateInterstitialAd} from "./CreateInterstitialAd";
 export {EventData} from "./events";
 export {AdvertiseStage} from "./AdvertiseStage";
+export {StandardGameEvent} from "./GameEvent";
 
 /**
  * 检查场景入口状态的返回结果

@@ -6,7 +6,7 @@ import {ttInitialize} from "../models/SdkInitialize";
 import {ttAddShortcut} from "../models/AddShortcut";
 import {LoginData} from "../models/LoginData";
 import {ttShareAppMessage} from "../models/ShareAppMessage";
-import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint} from "../models";
+import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint, StandardGameEvent} from "../models";
 
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
@@ -14,6 +14,19 @@ const TTMinis = (globalThis as any).TTMinis;
 export class TiktokSdk extends CleverSdk {
     protected bannerAd: any = null;
     protected interstitialAd: any = null;
+
+    /**
+     * StandardGameEvent → TikTok 原生事件名映射
+     *
+     * TikTok 平台要求通过 TTMinis.game.reportEvent 回传中间事件，
+     * eventName 需使用平台约定的标准事件名。
+     */
+    private static readonly EVENT_NAME_MAP: Partial<Record<StandardGameEvent, string>> = {
+        [StandardGameEvent.LOADING_COMPLETE]: "loading_complete",
+        [StandardGameEvent.COMPLETE_SECTION]: "complete_section",
+        [StandardGameEvent.GAIN_CREDITS]: "gain_credits",
+        [StandardGameEvent.USER_LEAVE]: "user_leave",
+    };
 
     async initialize(config: ttInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
@@ -321,7 +334,33 @@ export class TiktokSdk extends CleverSdk {
         return TTMinis.game.canIUse(schema);
     }
 
-    async reportEvent(id: string, custom: Record<string, any>): Promise<boolean> {
+    /**
+     * 上报事件
+     *
+     * 同时通过两条通道上报：
+     * 1. HTTP POST 到通用事件端点（用于游戏后台数据分析）
+     * 2. 若 data.event_type 为已知的 StandardGameEvent，
+     *    额外通过 TTMinis.game.reportEvent 分发到 TikTok 广告模型
+     *
+     * @param id - 游戏内部事件标识，由游戏自定义
+     * @param data - 事件数据，可包含 event_type 字段指定标准化事件类型
+     */
+    async reportEvent(id: string, data: Record<string, any>): Promise<boolean> {
+        const {event_type, ...params} = data;
+        const nativeEventName = TiktokSdk.EVENT_NAME_MAP[event_type as StandardGameEvent];
+
+        if (nativeEventName && this.canIUse("reportEvent")) {
+            TTMinis.game.reportEvent({
+                eventName: nativeEventName,
+                params: params,
+                success: () => {
+                },
+                fail: (err: any) => {
+                    console.warn(`TikTok 中间事件回传失败: ${nativeEventName}`, err);
+                },
+            });
+        }
+
         await TTMinis.game.request({
             url: EventEndPoint,
             method: "POST",
@@ -331,7 +370,7 @@ export class TiktokSdk extends CleverSdk {
                 channel_id: this.channel_id,
                 version_id: this.version_id,
                 event_id: id,
-                custom: custom,
+                custom: data,
             },
         });
         return true;

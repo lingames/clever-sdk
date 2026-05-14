@@ -1,0 +1,346 @@
+[图片]
+Updated Last: Jan 23, 2026 
+
+---
+【中文版】
+小程序中间事件的回传，有助于模型优化，提升广告效果。基于移动应用（APP）行业的经验参考，回传有效的中间事件可使广告支出回报率（ROAS）提升10 - 20%不等。
+回传中间事件的好处
+- 信号增强：更为全面地了解用户的全路径行为，为模型提供更全面的广告数据。
+- 效果提升：随着更多数据纳入模型，能够进行精准预估，提升最终广告效果。 
+背景 
+小程序是基于TikTok APP开发的内置应用程序。用户可在TikTok内直接游玩不同种类的游戏，观看多样的短剧，更便捷地享受娱乐盛宴。
+
+由于应用程序的开发以及内置的数据打点均依据广告主的习惯进行设置，并回传至平台。为更高效地协助 TikTok 收取相关广告信号数据，TikTok 特此在现有的 JS SDK 基础上，支持广告主回传中间事件的功能。开发者在游戏开发前期可直接调用 JS SDK，根据指引进行中间事件回传，最终助力模型优化，提升广告投放的最终效果。
+
+回传中间事件好处 
+信号对于广告效果的影响路径
+暂时无法在飞书文档外展示此内容
+具体效果提升因app而异，模型的迭代需要时间，短期收益可能不明显，但长期收益是比较确定。
+
+- 信号增强：更为全面地了解用户的全路径行为，为模型提供更全面的广告数据。
+- 效果提升：随着更多数据纳入模型，能够进行精准预估，提升最终广告效果。 
+
+关键对接流程
+暂时无法在飞书文档外展示此内容
+
+广告主准备工作 
+- 优化师+后端技术
+- 了解应用内部各个事件打点逻辑
+- 能够有效的部署代码回传匹配事件给到TikTok
+
+标准事件 | Standard Events
+小游戏 ｜ Mini Game
+小游戏回传的中间事件共4个。
+- 游戏加载完成/完成关卡/获取奖励/玩家离开游戏
+- 如果游戏内不包含相关事件，可以忽略，仅回传游戏内有对应的事件。事件回传的越多，越有助于模型优化，提升产品的投放效果
+- 回传参考 
+  - 快速开始 
+事件回传能力在客户端 40.9.0 及以上版本支持，因此需要在上报之前判断是否可用 ｜
+const canIUseReportEvent = TTMinis.game.canIUse('reportEvent');
+if (canIUseReportEvent) {
+  TTMinis.game.reportEvent({
+  eventName: "your-event-name",
+  params: {
+    key1: "value",
+    key2: "value2",
+    // ....
+  },
+  success:() => {
+  // return success
+  },
+  fail:() => {
+  // return fail
+  }
+ })}
+  - 举个例子
+const canIUseReportEvent = TTMinis.game.canIUse('reportEvent');
+if(canIUseReportEvent) {
+    TTMinis.game.reportEvent({
+      eventName: "enter_second_stage",
+      params: {
+       key1: "value",
+       key2: "value2",
+       // ....
+      },
+      success:() => {
+          // return success
+      },
+      fail:() => {
+          // return fail
+      }
+})
+}
+
+事件名称 | Event Name
+事件定义
+
+Event parameters
+
+Event parameters description
+Event parameters requirement
+loading_complete // 游戏加载完成 
+
+A user completes the mini-game resource loading (progress bar reaches 100%) or enters the mini-game home screen.// 玩家完成小游戏资源加载（进度条加载到100%）或者进入小游戏首页的时候，上报一次加载完成事件；
+complete_time
+时间戳 // timestamp
+具体的时间戳 // Specific timestamp
+
+Example: "timestamp": 1753772790000
+complete_section // 完成关卡
+
+A user completes sections in mini game. // 玩家完成指定关卡或者玩法
+
+section_type
+关卡类型Level type
+string（枚举值） 0=主线关卡，1=活动关卡，2=挑战关卡 主线关卡最重要，必传String (enumeration value) 0 = main line level, 1 = activity level, 2 = challenge level Main line level is the most important, must pass
+
+
+main_section_no
+主线关卡序号Main level number
+int（限关卡类型为主线关卡情况下使用） 例如主线关卡1，序号=1； 若关卡为主线关卡，则此为必传事件Int (used when the level type is the main line level) For example, the main line level 1, sequence number = 1; If level is the main line level, then this is a must-pass event.
+
+
+section_value
+关卡价值（可选）Level value (optional)
+int（枚举值） 0=高价值；1=低价值 用于方便模型学习理解高价值关卡，从而调整相关权重；建议将游戏数值压力关卡、高难度关卡等具有重要意义的关卡标记为高价值Int (enumeration value) 0 = high value; 1 = low value Used to facilitate model learning and understanding of high-value levels, thereby adjusting relevant weights; it is recommended to mark important levels such as game numerical pressure levels and high difficulty levels as high-value
+
+
+section_name
+关卡名称Level name
+string 关卡在游戏中对应的名字String The name corresponding to level in the game
+
+
+section_id
+关卡id Level id
+int
+
+
+section_sum
+玩家已完成关卡总数Total number of completed levels
+int
+gain_credits // 获取奖励
+
+A user gains credits to use in your game // 玩家获取可在游戏内部使用的奖励
+value
+数值Numerical value
+int 虚拟货币数额Int Amount of virtual currency
+
+
+token_type
+积分/货币类型（必选）Points/Currency Type (Required)
+
+int（枚举值） 0=必须付费获得的主要货币，一级货币；1=可以通过付费货币兑换或看广告等手段获得的二级货币Int (enumeration value) 0 = the main currency that must be paid for, primary currency; 1 = the secondary currency that can be obtained through paid currency exchange or other means
+
+
+token_id
+货币/积分IDCurrency/Points ID
+string 例如：金子、银子、钻石、星琼等 只要求客户上报游戏内的一种最主要的货币即可，每个用户都有的。String For example: gold, silver, diamonds, stars, etc Customers are only required to report one of the main currencies in the game, which every user has.
+user_leave // 玩家离开游戏
+A user leaves the game // 玩家离开游戏
+leave_time 
+时间戳 // timestamp
+具体的时间戳 // Specific timestamp
+
+
+Leave_reason
+
+1-自己主动退出（点击小游戏有右上角关闭）// User close the game (Click X to close it)
+2-主动kill App // Terminate the TikTok APP
+3-TT crush 
+4-小游戏Crush // Mini game crush
+5-退到后台 - 在玩别的小游戏（例如在游戏A，看游戏B的广告，去玩游戏B，A在后台保留）// Background Persistence: App remains in memory (e.g. switching between mini-games A→B)
+6-退到后台 - 系统清理内存 // Memory reclaim
+7-其他 // Others
+玩家离开小游戏的原因/场景，如果统计不到，可以是NULL. // The reason/scenario for the player leaving the mini game. If it cannot be counted, it can be NULL
+
+  
+设置检查验收 
+1. 开发者需要自查，是否游戏内部署的事件都成功上报 
+2. 客户提供埋点和对应的触发逻辑给到TikTok  中间事件回传检测模板（请复制使用）｜ Middle funnel Event (Make a copy))
+3. 直客检查客户上报结果，若存在异常，提交至TikTok Solution Engineers协助排查
+
+
+常见问题
+1. 对于获取奖励设置回传，需要每触发一次就回传一次吗？
+是的，每触发一次就回传一次
+
+2. 这里的参数的key是complete_time 还是timestamp
+[图片]
+是需要提供timestamp，具体参考example
+
+3. 如何自查事件是否成功上报
+先基于您自身BI先查验事件数据是否能收到，然后提报给TIKTOK进行检查
+
+4. user_leave & leave_reason的上报如何实现
+如果您自己无法实现，最基础的方案可参考：基于onHide进行判断，需提供时间戳；若无法区分具体原因，reason参数可以传NULL
+
+
+---
+[English Version]
+The postback of middle funnel events in mini games aids in optimizing the model and enhancing advertising effectiveness. Drawing on experience from mobile applications (APPs), when advertisers postback middle funnel events, it can raise the return on ad spend (ROAS) by 10 - 20%.  The English version is at the bottom of the document.
+Benefits of postback middle funnel events
+- Signal Enhancement: Gain a more comprehensive understanding of users' full-path behaviors and provide the model with more comprehensive advertising data.
+- Performance Improvement: As more data is incorporated into the model, accurate predictions can be made, thereby improving the final advertising performance.
+Background
+Mini-programs are built-in applications developed based on the TikTok APP. Users can directly play different types of games and watch a variety of short dramas within TikTok, enjoying an entertainment feast more conveniently.
+Since the development of the application and the built-in data logging are both set according to the advertisers' habits and the data is sent back to the platform. To more efficiently assist TikTok in collecting relevant advertising signal data, TikTok hereby supports the function of advertisers sending back intermediate events based on the existing JS SDK. Developers can directly call the JS SDK in the early stage of game development and send back intermediate events according to the instructions, ultimately helping to optimize the model and improve the final effect of advertising placement.
+Benefits of Sending Back Intermediate Events
+The Impact Path of Signals on Advertising Effect
+The specific improvement in effect varies from app to app. The iteration of the model takes time, so the short-term benefits may not be obvious, but the long-term benefits are relatively certain.
+- Funnel Optimization: Completing the logging and sending back of intermediate events provides an optimization basis for user link monitoring and the improvement of advertising monetization efficiency.
+- Signal Enhancement: A more comprehensive understanding of the user's full-path behavior provides more comprehensive advertising data for the model.
+- Effect Improvement: As more data is incorporated into the model, accurate predictions can be made, improving the final advertising effect.
+Postback SOP
+暂时无法在飞书文档外展示此内容
+Preparation Work for Advertisers
+- Optimization specialists + Back-end technicians
+- Understand the logic of logging each event within the application
+- Be able to effectively deploy code to send back matching events to TikTok
+Standard Events
+Mini-Games
+There are 4 key middle funnel events to be sent back for mini-games.
+- Game loading completed/Level completed/Reward obtained/Player left the game 
+- If the game does not include relevant events, they can be ignored, and only the events corresponding to those in the game need to be sent back. The more events are sent back, the more it helps to optimize the model and improve the product's advertising placement effect.
+- Reference for Sending Back Events
+  - Quick Start
+The ability to send back events is supported in client versions 40.9.0 and above. Therefore, it is necessary to check whether it is available before reporting.
+const canIUseReportEvent = TTMinis.game.canIUse('reportEvent');
+if (canIUseReportEvent) {
+  TTMinis.game.reportEvent({
+  eventName: "your-event-name",
+  params: {
+    key1: "value",
+    key2: "value2",
+    // ....
+  },
+  success:() => {
+  // return success
+  },
+  fail:() => {
+  // return fail
+  }
+ })}
+    - For example
+const canIUseReportEvent = TTMinis.game.canIUse('reportEvent');
+if(canIUseReportEvent) {
+    TTMinis.game.reportEvent({
+      eventName: "enter_second_stage",
+      params: {
+       key1: "value",
+       key2: "value2",
+       // ....
+      },
+      success:() => {
+          // return success
+      },
+      fail:() => {
+          // return fail
+      }
+})
+}
+事件名称 | Event Name
+事件定义
+
+Event parameters
+
+Event parameters description
+Event parameters requirement
+loading_complete // 游戏加载完成 
+
+A user completes the mini-game resource loading (progress bar reaches 100%) or enters the mini-game home screen.// 玩家完成小游戏资源加载（进度条加载到100%）或者进入小游戏首页的时候，上报一次加载完成事件；
+complete_time
+timestamp 时间戳
+具体的时间戳 // Specific timestamp
+
+Example: "timestamp": 1753772790000
+complete_section // 完成关卡
+
+A user completes sections in mini game. // 玩家完成指定关卡或者玩法
+
+section_type
+Level type关卡类型
+string（枚举值） 0=主线关卡，1=活动关卡，2=挑战关卡 主线关卡最重要，必传
+String (enumeration value) 0 = main line level, 1 = activity level, 2 = challenge level Main line level is the most important, must pass
+
+
+main_section_no
+Main level number
+主线关卡序号
+int（限关卡类型为主线关卡情况下使用） 例如主线关卡1，序号=1； 若关卡为主线关卡，则此为必传事件
+Int (used when the level type is the main line level) For example, the main line level 1, sequence number = 1; If level is the main line level, then this is a must-pass event.
+
+
+section_value
+关卡价值（可选）Level value (optional)
+int（枚举值） 0=高价值；1=低价值 用于方便模型学习理解高价值关卡，从而调整相关权重；建议将游戏数值压力关卡、高难度关卡等具有重要意义的关卡标记为高价值
+Int (enumeration value) 0 = high value; 1 = low value Used to facilitate model learning and understanding of high-value levels, thereby adjusting relevant weights; it is recommended to mark important levels such as game numerical pressure levels and high difficulty levels as high-value
+
+
+section_name
+关卡名称Level name
+string 关卡在游戏中对应的名字
+String The name corresponding to level in the game
+
+
+section_id
+关卡id Level id
+int
+
+
+section_sum
+玩家已完成关卡总数Total number of completed levels
+int
+gain_credits // 获取奖励
+
+A user gains credits to use in your game // 玩家获取可在游戏内部使用的奖励
+value
+数值Numerical value
+int 虚拟货币数额
+Int Amount of virtual currency
+
+
+token_type
+积分/货币类型（必选）Points/Currency Type (Required)
+
+int（枚举值） 0=必须付费获得的主要货币，一级货币；1=可以通过付费货币兑换或看广告等手段获得的二级货币
+Int (enumeration value) 0 = the main currency that must be paid for, primary currency; 1 = the secondary currency that can be obtained through paid currency exchange or other means
+
+
+token_id
+货币/积分IDCurrency/Points ID
+string 例如：金子、银子、钻石、星琼等 只要求客户上报游戏内的一种最主要的货币即可，每个用户都有的。
+String For example: gold, silver, diamonds, stars, etc Customers are only required to report one of the main currencies in the game, which every user has.
+user_leave // 玩家离开游戏
+A user leaves the game // 玩家离开游戏
+leave_time 
+时间戳 // timestamp
+具体的时间戳 // Specific timestamp
+
+
+Leave_reason
+
+1-自己主动退出（点击小游戏有右上角关闭）// User close the game (Click X to close it)
+2-主动kill App // Terminate the TikTok APP
+3-TT crush 
+4-小游戏Crush // Mini game crush
+5-退到后台 - 在玩别的小游戏（例如在游戏A，看游戏B的广告，去玩游戏B，A在后台保留）// Background Persistence: App remains in memory (e.g. switching between mini-games A→B)
+6-退到后台 - 系统清理内存 // Memory reclaim
+7-其他 // Others
+玩家离开小游戏的原因/场景，如果统计不到，可以是NULL. // The reason/scenario for the player leaving the mini game. If it cannot be counted, it can be NULL
+
+
+Configuration Check
+1. Developers need to self-check whether all 4 middle-funnel events have been successfully reported in the own BI tracking.
+2. Clients should provide the list of events along with their corresponding trigger logic to TikTok. 中间事件回传检测模板（请复制使用）｜ Middle funnel Event (Make a copy))
+3. TikTok Client Partners check the results reported by clients, and if any anomalies are found, submit them to TikTok Solution Engineers for assistance in troubleshooting.
+
+Q&A
+1. For the postback setting of obtaining rewards, does it need to be posted back every time it is triggered?
+  - Yes, postback once for each trigger
+2. Is the key to the parameter here complete_time or timestamp?
+[图片]
+  - needs to provide a timestamp, with specific reference to the above example.
+3. How to self-check if an event has been successfully reported?
+  - First, check whether the event data can be received based on your own BI, and then report it to TIKTOK for inspection.
+4. How to implement the reporting of "user_leave and leave_reason"?
+  - If you cannot implement it yourself, the most basic solution can refer to: make a judgment based on onHide, and a timestamp needs to be provided; if the specific reason cannot be distinguished, the reason parameter can be passed as NULL.
