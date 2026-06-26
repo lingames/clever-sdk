@@ -11,6 +11,28 @@ import {CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint, Tik
 // @ts-ignore
 const TTMinis = (globalThis as any).TTMinis;
 
+/** TTMinis.game.request 在 DevTool 中多为 callback 风格，兼容 Promise 与 success/fail */
+function ttMinisRequest(options: Record<string, unknown>): Promise<any> {
+    return new Promise((resolve, reject) => {
+        if (!TTMinis?.game || typeof TTMinis.game.request !== "function") {
+            reject(new Error("TTMinis.game.request unavailable"));
+            return;
+        }
+        try {
+            const ret = TTMinis.game.request({
+                ...options,
+                success: (res: unknown) => resolve(res),
+                fail: (err: unknown) => reject(err),
+            });
+            if (ret && typeof ret.then === "function") {
+                ret.then(resolve).catch(reject);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 export class TiktokSdk extends CleverSdk {
     protected bannerAd: any = null;
     protected interstitialAd: any = null;
@@ -47,8 +69,7 @@ export class TiktokSdk extends CleverSdk {
                             login_code: res.code,
                         };
                         // https://developers.tiktok.com/doc/mini-games-sdk-login?enter_method=left_navigation
-                        TTMinis.game
-                            .request({
+                        ttMinisRequest({
                                 url: this.sdk_login_url,
                                 method: "POST",
                                 data: body,
@@ -95,8 +116,7 @@ export class TiktokSdk extends CleverSdk {
                             platform: this.platform,
                             login_code: res.code,
                         };
-                        TTMinis.game
-                            .request({
+                        ttMinisRequest({
                                 url: this.sdk_login_url,
                                 method: "POST",
                                 data: body,
@@ -373,7 +393,7 @@ export class TiktokSdk extends CleverSdk {
             });
         }
 
-        await TTMinis.game.request({
+        await ttMinisRequest({
             url: EventEndPoint,
             method: "POST",
             data: {
