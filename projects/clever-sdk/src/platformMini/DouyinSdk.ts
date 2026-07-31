@@ -5,7 +5,8 @@ import { dyInitialize } from "../models/SdkInitialize";
 import { dyAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
 import { dyShareAppMessage } from "../models/ShareAppMessage";
-import { CheckSceneResult, CheckShortcutResult, LoginEndPoint, ReportResult } from "../models";
+import { CheckSceneResult, CheckShortcutResult, EventEndPoint, LoginEndPoint, ReportResult } from "../models";
+import { wxGetUserInfo, wxUserInfoCallback } from "../models/LoginData";
 
 const tt = (globalThis as any).tt;
 
@@ -165,6 +166,21 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
+    public async getUserInfo(param: wxGetUserInfo = {}): Promise<wxUserInfoCallback> {
+        // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/user-information/info/tt-get-user-info
+        return new Promise((resolve, reject) => {
+            tt.getUserInfo({
+                ...param,
+                success: (fine: wxUserInfoCallback) => {
+                    resolve(fine);
+                },
+                fail: (err: any) => {
+                    reject(err);
+                },
+            });
+        });
+    }
+
     async addCommonUse(): Promise<boolean> {
         return super.addCommonUse();
     }
@@ -203,8 +219,8 @@ export class DouyinSdk extends CleverSdk {
     }
 
     async reportEvent(id: string, custom: Record<string, any>): Promise<ReportResult> {
-        const res = tt.request({
-            url: "https://api.salesagent.cc/game-logger/event",
+        tt.request({
+            url: EventEndPoint,
             method: "POST",
             data: {
                 player_anonymous: this.player_anonymous,

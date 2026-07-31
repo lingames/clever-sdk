@@ -116,5 +116,7 @@ export type MyConfig = {
     minigame_game_id?: string;
 };
 
-export const EventEndPoint = "https://api.salesagent.cc/game-logger/event";
-export const LoginEndPoint = "https://api.salesagent.cc/game-analyzer/player/login";
+/** 游戏事件上报 — https://api.lingame.cn/trace/v1/event */
+export const EventEndPoint = "https://api.lingame.cn/trace/v1/event";
+/** Clever SDK 玩家 login / code2session — 走 main-api，不在 trace */
+export const LoginEndPoint = "https://api.lingame.cn/data/v1/player/login";
