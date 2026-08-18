@@ -15,6 +15,8 @@ export {
     UserLeaveParams,
 } from "./TiktokGameEvent";
 export type { TiktokEventParams } from "./TiktokGameEvent";
+export { extractDouyinAdvertiseAttribution } from "./DouyinAdvertiseAttribution";
+export type { DouyinAdvertiseAttribution } from "./DouyinAdvertiseAttribution";
 
 export interface ReportResult {
     success: boolean;
@@ -117,4 +119,5 @@ export type MyConfig = {
 };
 
 export const EventEndPoint = "https://api.salesagent.cc/game-logger/event";
-export const LoginEndPoint = "https://api.salesagent.cc/game-analyzer/player/login";
+export const LoginEndPoint =
+    "https://api.salesagent.cc/game-analyzer/player/login";

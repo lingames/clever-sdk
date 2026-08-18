@@ -1,11 +1,21 @@
 import { CleverSdk } from "../CleverSdk.js";
-import { dyCreateRewardedVideoAd, VideoReward } from "../models/PlayRewardedVideo";
+import {
+    dyCreateRewardedVideoAd,
+    VideoReward,
+} from "../models/PlayRewardedVideo";
 import { dyCreateBannerAd } from "../models/CreateBannerAd";
 import { dyInitialize } from "../models/SdkInitialize";
 import { dyAddShortcut } from "../models/AddShortcut";
 import { LoginData } from "../models/LoginData";
 import { dyShareAppMessage } from "../models/ShareAppMessage";
-import { CheckSceneResult, CheckShortcutResult, LoginEndPoint, ReportResult } from "../models";
+import {
+    CheckSceneResult,
+    CheckShortcutResult,
+    LoginEndPoint,
+    ReportResult,
+} from "../models";
+import { extractDouyinAdvertiseAttribution } from "../models/DouyinAdvertiseAttribution";
+import type { DouyinAdvertiseAttribution } from "../models/DouyinAdvertiseAttribution";
 
 const tt = (globalThis as any).tt;
 
@@ -13,11 +23,21 @@ export class DouyinSdk extends CleverSdk {
     protected videoAd: any = null;
     protected bannerAd: any = null;
     private _lastVideoAdUnitId: string = "";
+    private advertiseAttribution: DouyinAdvertiseAttribution | null = null;
 
     async initialize(config: dyInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
+        this.advertiseAttribution = this.readAdvertiseAttribution();
         console.info("抖音全局对象:", tt);
         return true;
+    }
+
+    public getAdvertiseAttribution(): DouyinAdvertiseAttribution | null {
+        this.advertiseAttribution =
+            this.readAdvertiseAttribution() ?? this.advertiseAttribution;
+        return this.advertiseAttribution
+            ? { ...this.advertiseAttribution }
+            : null;
     }
 
     async login(): Promise<LoginData> {
@@ -30,6 +50,8 @@ export class DouyinSdk extends CleverSdk {
                             project_id: this.project_id,
                             platform: this.platform,
                             login_code: res.code,
+                            advertise_attribution:
+                                this.getAdvertiseAttribution() ?? undefined,
                         };
                         // https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/network/initiate-a-request/tt-request
                         tt.request({
@@ -202,7 +224,10 @@ export class DouyinSdk extends CleverSdk {
         });
     }
 
-    async reportEvent(id: string, custom: Record<string, any>): Promise<ReportResult> {
+    async reportEvent(
+        id: string,
+        custom: Record<string, any>,
+    ): Promise<ReportResult> {
         const res = tt.request({
             url: "https://api.salesagent.cc/game-logger/event",
             method: "POST",
@@ -216,5 +241,14 @@ export class DouyinSdk extends CleverSdk {
             },
         });
         return { success: true };
+    }
+
+    private readAdvertiseAttribution(): DouyinAdvertiseAttribution | null {
+        if (!tt || typeof tt.getLaunchOptionsSync !== "function") return null;
+        try {
+            return extractDouyinAdvertiseAttribution(tt.getLaunchOptionsSync());
+        } catch {
+            return null;
+        }
     }
 }
