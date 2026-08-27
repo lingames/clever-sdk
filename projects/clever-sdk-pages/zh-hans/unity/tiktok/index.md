@@ -13,7 +13,7 @@ using CleverSDK.Models;
 var sdk = (CleverSdkTiktok)CleverSdkFactory.CreateSdk(new TiktokSdkConfig
 {
     project_id = "your_project_id",
-    sdk_login_url = "https://api.salesagent.cc/game-analyzer/player/login",
+    sdk_login_url = "https://data.lingame.cn/user/login-tiktok",
     event_endpoint = "https://api.salesagent.cc/game-logger/event"
 });
 ```
@@ -35,7 +35,9 @@ var authorized = await sdk.AuthorizeAsync("user.info.basic");
 
 1. Unity WebGL 调用 `TTMinis.game.login` 获取临时 `code`
 2. SDK 将 `project_id`、`platform`、`login_code` 发送到 `sdk_login_url`
-3. 服务端返回 `open_id`、`session_key` 等登录数据
+3. 服务端按当前 `project_id` 读取该项目的 `client_key` / `client_secret`，再返回 `open_id`、`session_key` 等登录数据
+
+> TikTok 登录建议固定配置为 `https://data.lingame.cn/user/login-tiktok`。
 
 ## 3. 广告
 

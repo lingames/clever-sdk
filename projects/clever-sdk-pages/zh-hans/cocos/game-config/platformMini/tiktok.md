@@ -23,7 +23,7 @@ interface ttInitialize {
 }
 
 await sdk.initialize({
-    sdk_login_url: "https://api.salesagent.cc/game-analyzer/player/login"
+    sdk_login_url: "https://data.lingame.cn/user/login-tiktok"
 });
 ```
 
@@ -37,7 +37,9 @@ const data = await sdk.login();
 
 1. 调用 `TTMinis.game.login()` 获取临时登录凭证 `code`
 2. 将 `code` 连同 `platform`、`project_id` 发送到 SDK 登录服务器
-3. 服务器返回 `session_key`，SDK 自动保存
+3. 服务器按当前 `project_id` 读取项目级 `client_key` / `client_secret`，并返回 `open_id`、`session_key` 等登录数据，SDK 自动保存
+
+> TikTok 登录建议固定配置为 `https://data.lingame.cn/user/login-tiktok`。
 
 > 参考: [TikTok 登录](https://developers.tiktok.com/doc/mini-games-sdk-login)
 

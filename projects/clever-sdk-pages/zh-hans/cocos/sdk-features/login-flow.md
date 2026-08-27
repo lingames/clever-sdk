@@ -77,6 +77,8 @@ const loginData = await sdk.login();
 3. SDK 将凭证发送到 SDK 服务器验证
 4. SDK 服务器返回统一格式的用户信息
 
+> TikTok 小游戏登录请单独配置 `sdk_login_url = "https://data.lingame.cn/user/login-tiktok"`，后端会按 `project_id` 读取项目级 `client_key` / `client_secret`。
+
 ### 3. 后端登录
 
 **适用场景**: 游戏有自己的后端服务器，需要自定义登录逻辑。
