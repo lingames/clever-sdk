@@ -11,10 +11,10 @@ import {
     CheckShortcutResult,
     EventEndPoint,
     EventReportPayload,
-    LoginEndPoint,
     ReportResult,
     TiktokEventParams,
     TiktokGameEvent,
+    TiktokLoginEndPoint,
 } from "../models";
 
 // @ts-ignore
@@ -61,7 +61,7 @@ export class TiktokSdk extends CleverSdk {
     };
 
     async initialize(config: ttInitialize): Promise<boolean> {
-        this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
+        this.sdk_login_url = config.sdk_login_url ?? TiktokLoginEndPoint;
         this.project_id_format = config.project_id_format;
         console.info("TikTok 全局对象:", TTMinis);
         return true;
