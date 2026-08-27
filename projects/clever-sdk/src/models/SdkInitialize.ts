@@ -11,22 +11,27 @@ export type SdkInitialize =
 
 export interface m4399Initialize {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
 }
 
 export interface dyInitialize {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
 }
 
 export interface ttInitialize {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
 }
 
 export interface ksInitialize {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
 }
 
 export type wxInitialize = {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
     // 启用分享功能, 默认启用
     // https://developers.weixin.qq.com/minigame/dev/guide/open-ability/share/share.html
     enableShare?: boolean;
@@ -47,6 +52,7 @@ export interface ggInitialize {
 
 export interface minigameInitialize {
     sdk_login_url?: string;
+    project_id_format?: 'decimal' | 'base36';
     /** SDK脚本地址，PREVIEW模式下动态加载 */
     sdk_script_url?: string;
 }

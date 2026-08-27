@@ -24,7 +24,7 @@ export class WeChatSdk extends CleverSdk {
                     if (res.code) {
                         const body = {
                             platform: this.platform,
-                            project_id: this.project_id,
+                            ...this.getProjectIdPayload(),
                             login_code: res.code,
                             Fields: {
                                 grant_type: "authorization_code",
@@ -63,6 +63,7 @@ export class WeChatSdk extends CleverSdk {
 
     async initialize(config: wxInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
+        this.project_id_format = config.project_id_format;
         if (config.enableShare !== false) {
             wx.showShareMenu({
                 menus: ["shareAppMessage", "shareTimeline"],

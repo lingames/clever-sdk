@@ -17,6 +17,7 @@ export class KuaiShouSdk extends CleverSdk {
 
     async initialize(config: ksInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
+        this.project_id_format = config.project_id_format;
         console.info("快手全局对象:", ks);
         return true;
     }
@@ -27,7 +28,7 @@ export class KuaiShouSdk extends CleverSdk {
                 success: (res: any) => {
                     if (res.code) {
                         const body = {
-                            project_id: this.project_id,
+                            ...this.getProjectIdPayload(),
                             platform: this.platform,
                             login_code: res.code,
                             Fields: {

@@ -56,6 +56,8 @@ export interface CheckShortcutResult {
     needUpdate: boolean;
 }
 
+export type ProjectIdFormat = 'decimal' | 'base36'
+
 /**
  * SDK 配置参数
  */
@@ -64,6 +66,10 @@ export type MyConfig = {
      * 项目 ID
      */
     project_id: string;
+    /**
+     * 项目 ID 编码格式
+     */
+    project_id_format?: 'decimal' | 'base36';
     /**
      * 平台标识（自动检测时可不填）
      */

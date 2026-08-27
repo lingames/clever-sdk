@@ -27,6 +27,7 @@ export class DouyinSdk extends CleverSdk {
 
     async initialize(config: dyInitialize): Promise<boolean> {
         this.sdk_login_url = config.sdk_login_url ?? LoginEndPoint;
+        this.project_id_format = config.project_id_format;
         this.advertiseAttribution = this.readAdvertiseAttribution();
         console.info("抖音全局对象:", tt);
         return true;
@@ -47,7 +48,7 @@ export class DouyinSdk extends CleverSdk {
                 success: (res: any) => {
                     if (res.code) {
                         const body = {
-                            project_id: this.project_id,
+                            ...this.getProjectIdPayload(),
                             platform: this.platform,
                             login_code: res.code,
                             advertise_attribution:

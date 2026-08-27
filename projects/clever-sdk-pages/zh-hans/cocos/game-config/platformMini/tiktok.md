@@ -13,6 +13,8 @@ const sdk = new TiktokSdk(platform, project_id, game_id);
 - **全局对象**: `TTMinis`
 - **继承**: `CleverSdk`
 
+> Unity 项目请使用 Unity 包中的 `CleverSdkTiktok`，接入说明见 [TikTok Unity SDK 接入](../../../unity/tiktok/)。
+
 ## 初始化
 
 ```ts

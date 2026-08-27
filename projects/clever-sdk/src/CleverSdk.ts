@@ -11,6 +11,7 @@ import { NavigateToScene } from "./models/NavigateToScene";
 import { AdvertiseStage } from "./models/AdvertiseStage";
 import { ReportContext } from "./models/ReportContext";
 import { CheckShortcutResult, ReportResult } from "./models/index";
+import type { ProjectIdFormat } from "./models";
 
 export class CleverSdk {
     // 平台名称
@@ -24,6 +25,7 @@ export class CleverSdk {
     protected game_id: string;
     protected sdk_url: string = "";
     protected sdk_key: string = "";
+    protected project_id_format?: ProjectIdFormat;
 
     // protected adUnitId: string = '';
     protected sdk_login_url: string = "";
@@ -34,6 +36,16 @@ export class CleverSdk {
         this.project_id = project_id;
         this.game_id = game_id;
         this.session_key = "";
+    }
+
+    protected getProjectIdPayload(): { project_id: string; project_id_format?: ProjectIdFormat } {
+        const payload: { project_id: string; project_id_format?: ProjectIdFormat } = {
+            project_id: this.project_id,
+        };
+        if (this.project_id_format) {
+            payload.project_id_format = this.project_id_format;
+        }
+        return payload;
     }
 
     /** 初始化平台参数
